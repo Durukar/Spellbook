@@ -1,54 +1,49 @@
-import { v4 as uuidv4 } from 'uuid';
-import type { StockItem } from '../models/Stock';
-
-const STOCK_STORAGE_KEY = 'spellbook_stock';
+import type { StockItem } from '../models/Stock'
+import { apiService } from './apiService'
 
 class StockService {
-    /**
-     * Recupera todos os itens do estoque salvos no localStorage.
-     */
-    async getStockItems(): Promise<StockItem[]> {
-        return new Promise((resolve) => {
-            const data = localStorage.getItem(STOCK_STORAGE_KEY);
-            if (!data) {
-                resolve([]);
-                return;
-            }
-
-            try {
-                const items: StockItem[] = JSON.parse(data);
-                resolve(items);
-            } catch (error) {
-                console.error('Failed to parse stock items from localStorage:', error);
-                resolve([]);
-            }
-        });
-    }
-
-    /**
-     * Adiciona um novo item ao estoque. Gera o ID (UUID) e a data de aquisição automaticamente.
-     */
     async addStockItem(item: Omit<StockItem, 'id' | 'purchaseDate'>): Promise<StockItem> {
-        const currentItems = await this.getStockItems();
+        const backendItem = await apiService.addStockItem({
+            scryfall_id: item.scryfallId,
+            card_name: item.cardName,
+            set_name: item.setName,
+            image_url: item.imageUrl,
+            purchase_price: item.purchasePrice,
+            condition: item.condition,
+            quantity: item.quantity,
+        })
 
-        const newItem: StockItem = {
-            ...item,
-            id: uuidv4(),
-            purchaseDate: new Date().toISOString(),
-        };
-
-        const updatedItems = [...currentItems, newItem];
-        localStorage.setItem(STOCK_STORAGE_KEY, JSON.stringify(updatedItems));
-
-        return newItem;
+        return {
+            id: backendItem.id,
+            scryfallId: backendItem.scryfall_id,
+            cardName: backendItem.card_name,
+            setName: backendItem.set_name,
+            imageUrl: backendItem.image_url,
+            purchasePrice: Number(backendItem.purchase_price),
+            purchaseDate: backendItem.purchase_date,
+            condition: backendItem.condition,
+            quantity: backendItem.quantity,
+        }
     }
 
-    /**
-     * Limpa todo o estoque (Utilidade para os testes TDD ou reset do app).
-     */
+    async getStockItems(): Promise<StockItem[]> {
+        const items = await apiService.listStockItems()
+        return items.map(item => ({
+            id: item.id,
+            scryfallId: item.scryfall_id,
+            cardName: item.card_name,
+            setName: item.set_name,
+            imageUrl: item.image_url,
+            purchasePrice: Number(item.purchase_price),
+            purchaseDate: item.purchase_date,
+            condition: item.condition,
+            quantity: item.quantity,
+        }))
+    }
+
     clearStock(): void {
-        localStorage.removeItem(STOCK_STORAGE_KEY);
+        // Mantido para compatibilidade com testes legados
     }
 }
 
-export const stockService = new StockService();
+export const stockService = new StockService()

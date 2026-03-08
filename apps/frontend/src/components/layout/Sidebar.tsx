@@ -34,7 +34,7 @@ import {
 } from '@/components/ui/collapsible';
 import { useTheme } from '@/components/theme-provider';
 
-export type AppView = 'dashboard' | 'search';
+export type AppView = 'dashboard' | 'search' | 'allCards';
 
 interface AppSidebarProps {
     currentView?: AppView;
@@ -110,7 +110,10 @@ export function AppSidebar({ currentView = 'dashboard', onNavigate }: AppSidebar
                                     <CollapsibleContent>
                                         <SidebarMenuSub>
                                             <SidebarMenuSubItem>
-                                                <SidebarMenuSubButton isActive>
+                                                <SidebarMenuSubButton
+                                                    isActive={currentView === 'allCards'}
+                                                    onClick={() => onNavigate?.('allCards')}
+                                                >
                                                     <span>All Cards</span>
                                                 </SidebarMenuSubButton>
                                             </SidebarMenuSubItem>

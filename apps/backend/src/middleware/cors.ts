@@ -4,7 +4,7 @@ import type { Env } from '../types/env'
 
 export function corsMiddleware(): MiddlewareHandler<{ Bindings: Env }> {
   return async (c, next) => {
-    const allowedOrigins = c.env.ALLOWED_ORIGINS
+    const allowedOrigins = c.env?.ALLOWED_ORIGINS
       ? c.env.ALLOWED_ORIGINS.split(',').map((o) => o.trim())
       : ['http://localhost:5173']
 

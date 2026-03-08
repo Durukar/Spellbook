@@ -4,6 +4,7 @@ import { TooltipProvider } from '@/components/ui/tooltip'
 import { AppSidebar, type AppView } from './components/layout/Sidebar'
 import { TransactionDashboard } from './components/dashboard/TransactionDashboard'
 import { CardSearchView } from './components/cards/CardSearchView'
+import { StockListView } from './components/stock/StockListView'
 import { ThemeProvider } from '@/components/theme-provider'
 
 function App() {
@@ -18,6 +19,7 @@ function App() {
             <main className="flex-1 w-full bg-bg-base overflow-hidden">
               {currentView === 'dashboard' && <TransactionDashboard />}
               {currentView === 'search' && <CardSearchView />}
+              {currentView === 'allCards' && <StockListView />}
             </main>
           </div>
         </SidebarProvider>

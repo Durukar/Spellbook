@@ -1,0 +1,13 @@
+CREATE TABLE IF NOT EXISTS stock_items (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  scryfall_id VARCHAR(255) NOT NULL,
+  card_name VARCHAR(255) NOT NULL,
+  set_name VARCHAR(255) NOT NULL,
+  image_url TEXT NOT NULL,
+  purchase_price DECIMAL(10,2) NOT NULL DEFAULT 0,
+  purchase_date TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
+  condition VARCHAR(3) NOT NULL CHECK (condition IN ('NM', 'SP', 'MP', 'HP', 'DMG')),
+  quantity INTEGER NOT NULL DEFAULT 1,
+  created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
+  updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW()
+);
