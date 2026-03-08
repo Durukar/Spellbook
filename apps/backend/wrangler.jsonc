@@ -1,0 +1,16 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "spellbook-api",
+  "main": "src/index.ts",
+  "compatibility_date": "2026-03-08",
+  "compatibility_flags": ["nodejs_compat"],
+  "observability": {
+    "enabled": true
+  },
+  "vars": {
+    "ENVIRONMENT": "development",
+    "ALLOWED_ORIGINS": "http://localhost:5173"
+  }
+  // Production overrides via wrangler deploy --env production
+  // or via Cloudflare dashboard environment variables
+}
