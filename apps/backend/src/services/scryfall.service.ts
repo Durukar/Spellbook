@@ -1,5 +1,10 @@
 const SCRYFALL_BASE_URL = 'https://api.scryfall.com'
 
+const SCRYFALL_HEADERS = {
+  Accept: 'application/json',
+  'User-Agent': 'SpellBook/1.0 (https://github.com/spellbook)',
+}
+
 export interface ScryfallCard {
   id: string
   name: string
@@ -33,14 +38,20 @@ export interface ScryfallSearchResult {
 }
 
 export const scryfallService = {
-  async searchCards(query: string, page = 1): Promise<ScryfallSearchResult> {
+  async searchCards(query: string, page = 1, includeMultilingual = false): Promise<ScryfallSearchResult> {
     const params = new URLSearchParams({ q: query, page: String(page) })
+    if (includeMultilingual) {
+      params.append('include_multilingual', 'true')
+    }
     const res = await fetch(`${SCRYFALL_BASE_URL}/cards/search?${params}`, {
-      headers: { Accept: 'application/json' },
+      headers: SCRYFALL_HEADERS,
     })
 
     if (!res.ok) {
-      if (res.status === 404) return { data: [], has_more: false, total_cards: 0 }
+      // 404 = no results for this query — not a fatal error
+      if (res.status === 404) {
+        return { data: [], has_more: false, total_cards: 0 }
+      }
       throw new Error(`Scryfall search failed: ${res.status}`)
     }
 
@@ -49,7 +60,7 @@ export const scryfallService = {
 
   async getCardById(id: string): Promise<ScryfallCard> {
     const res = await fetch(`${SCRYFALL_BASE_URL}/cards/${id}`, {
-      headers: { Accept: 'application/json' },
+      headers: SCRYFALL_HEADERS,
     })
 
     if (!res.ok) throw new Error(`Card not found: ${id}`)
@@ -60,11 +71,23 @@ export const scryfallService = {
   async getCardByName(name: string): Promise<ScryfallCard> {
     const params = new URLSearchParams({ exact: name })
     const res = await fetch(`${SCRYFALL_BASE_URL}/cards/named?${params}`, {
-      headers: { Accept: 'application/json' },
+      headers: SCRYFALL_HEADERS,
     })
 
     if (!res.ok) throw new Error(`Card not found: ${name}`)
 
     return res.json<ScryfallCard>()
+  },
+
+  async autocomplete(query: string): Promise<string[]> {
+    const params = new URLSearchParams({ q: query })
+    const res = await fetch(`${SCRYFALL_BASE_URL}/cards/autocomplete?${params}`, {
+      headers: SCRYFALL_HEADERS,
+    })
+
+    if (!res.ok) throw new Error(`Autocomplete failed: ${res.status}`)
+
+    const result = await res.json<{ data: string[] }>()
+    return result.data
   },
 }

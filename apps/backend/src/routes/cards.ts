@@ -6,4 +6,5 @@ export const cardRoutes = new Hono<{ Bindings: Env }>()
 
 cardRoutes.get('/search', cardsController.search)
 cardRoutes.get('/named', cardsController.getByName)
+cardRoutes.get('/autocomplete', cardsController.autocomplete)
 cardRoutes.get('/:id', cardsController.getById)

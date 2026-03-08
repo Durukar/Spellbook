@@ -8,6 +8,7 @@ import {
     Moon,
     Sun,
     ChevronDown,
+    Search,
 } from 'lucide-react';
 import {
     Sidebar,
@@ -33,7 +34,14 @@ import {
 } from '@/components/ui/collapsible';
 import { useTheme } from '@/components/theme-provider';
 
-export function AppSidebar() {
+export type AppView = 'dashboard' | 'search';
+
+interface AppSidebarProps {
+    currentView?: AppView;
+    onNavigate?: (view: AppView) => void;
+}
+
+export function AppSidebar({ currentView = 'dashboard', onNavigate }: AppSidebarProps) {
     const { theme, setTheme } = useTheme();
 
     return (
@@ -63,9 +71,24 @@ export function AppSidebar() {
                     <SidebarGroupContent>
                         <SidebarMenu>
                             <SidebarMenuItem>
-                                <SidebarMenuButton isActive tooltip="Dashboard">
+                                <SidebarMenuButton
+                                    isActive={currentView === 'dashboard'}
+                                    tooltip="Dashboard"
+                                    onClick={() => onNavigate?.('dashboard')}
+                                >
                                     <LayoutDashboard />
                                     <span>Dashboard</span>
+                                </SidebarMenuButton>
+                            </SidebarMenuItem>
+
+                            <SidebarMenuItem>
+                                <SidebarMenuButton
+                                    isActive={currentView === 'search'}
+                                    tooltip="Buscar Cartas"
+                                    onClick={() => onNavigate?.('search')}
+                                >
+                                    <Search />
+                                    <span>Buscar Cartas</span>
                                 </SidebarMenuButton>
                             </SidebarMenuItem>
 

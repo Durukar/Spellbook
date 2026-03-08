@@ -1,3 +1,7 @@
+export type ScryfallColor = 'W' | 'U' | 'B' | 'R' | 'G';
+
+export type ScryfallLegalityStatus = 'legal' | 'not_legal' | 'restricted' | 'banned';
+
 export interface ScryfallSet {
     object: 'set';
     id: string;
@@ -28,6 +32,14 @@ export interface ScryfallCardPrices {
     eur_foil: string | null;
 }
 
+export interface ScryfallImageUris {
+    small: string;
+    normal: string;
+    large: string;
+    art_crop: string;
+    border_crop: string;
+}
+
 export interface ScryfallCard {
     object: 'card';
     id: string;
@@ -37,13 +49,8 @@ export interface ScryfallCard {
     collector_number: string;
     rarity: 'common' | 'uncommon' | 'rare' | 'mythic' | 'special' | 'bonus';
     prices: ScryfallCardPrices;
-    image_uris?: {
-        small: string;
-        normal: string;
-        large: string;
-        art_crop: string;
-        border_crop: string;
-    };
+    image_uris?: ScryfallImageUris;
+    card_faces?: ScryfallCardFace[];
     released_at: string;
     lang: string;
 }
@@ -54,4 +61,51 @@ export interface ScryfallCardList {
     next_page?: string;
     total_cards: number;
     data: ScryfallCard[];
+}
+
+export interface ScryfallCardLegalities {
+    standard: ScryfallLegalityStatus;
+    pioneer: ScryfallLegalityStatus;
+    modern: ScryfallLegalityStatus;
+    legacy: ScryfallLegalityStatus;
+    vintage: ScryfallLegalityStatus;
+    commander: ScryfallLegalityStatus;
+    pauper: ScryfallLegalityStatus;
+}
+
+export interface ScryfallCardFace {
+    object: 'card_face';
+    name: string;
+    mana_cost: string;
+    type_line: string;
+    oracle_text?: string;
+    colors?: ScryfallColor[];
+    power?: string;
+    toughness?: string;
+    image_uris?: ScryfallImageUris;
+}
+
+export interface ScryfallCardDetail extends ScryfallCard {
+    oracle_text?: string;
+    type_line: string;
+    mana_cost?: string;
+    cmc: number;
+    colors?: ScryfallColor[];
+    color_identity: ScryfallColor[];
+    legalities: ScryfallCardLegalities;
+    power?: string;
+    toughness?: string;
+    loyalty?: string;
+    keywords: string[];
+    rulings_uri: string;
+    prints_search_uri: string;
+    artist?: string;
+    flavor_text?: string;
+    card_faces?: ScryfallCardFace[];
+}
+
+export interface ScryfallAutocompleteResult {
+    object: 'catalog';
+    total_values: number;
+    data: string[];
 }
