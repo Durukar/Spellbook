@@ -57,3 +57,26 @@ Execute na pasta `apps/frontend/`:
 "então na verdade eu refiz o Escopo do projeto antes era so uma API, mas agora é um sistema de controle de estoque, vendas e compra e vendas de cartas TCG, por isso se chama SpellBook, por enquanto estamos trabalhando em uma POC e por conta disso sera inicialmente integrado com o scryfall e sera apenas Magic The gathering.
 
 Sera hospedado na cloudflarepages e o backend no cloudflare workers, pore enquanto estamos trabalhando apenas no frontend, sera mono repo com apps/frontend e app/backend"
+
+## Visao de Futuro: Motor de Precos e Gestao Financeira (Brainstorm)
+O sistema devera evoluir de um simples buscador para uma verdadeira ferramenta de Gestao Financeira (Home Broker de Magic):
+
+- **Motor de Precos (Cotacoes)**:
+  - Objetivo de agregar APIs internacionais como TCGplayer, Cardmarket, ou MTGJSON para visibilidade antecipada de tendencia de precos globais (delay de mercado em relacao ao Brasil).
+  - A configuracao da fonte de precos ficara na aba **Settings** (com `SettingsViewModel` controlando preferencia de loja favorita, configuracao de conversao de moeda, condicao padrao NM/SP e alertas). A tela da carta deve permanecer limpa.
+
+- **Gestao de Estoque (Aquisicao)**:
+  - Registro de compra (`AquisicaoCarta`) salvando: Valor Pago em R$, Data da Compra, Origem/Fornecedor, Condicao da Carta.
+  - Dashboards com graficos de evolucao patrimonial e ROI baseado no "Valor Pago vs Valor de Mercado".
+
+- **Protecao ao Credito e Gestao de Vendas**:
+  - **Perfil do Comprador CRM**: Rastrear devedores, contas a receber (fiado), pagamentos em dia, e "% media de choro/desconto" do comprador para alertar na hora de negociar.
+  - **Trava de Segurança Financeira (Stop Loss)**: Ao iniciar a venda, cruzar o "Valor de Venda" com o "Valor de Aquisicao". Se a transacao e/ou o desconto der prejuizo configurado (Ex: > 15%), emitir alerta critico bloqueante na tela.
+  - O campo "Desconto Concedido" sera obrigatoriamente separado para alimentar relatorios financeiros mensais de margem que foi "perdida" em negociacoes.
+
+- **Funcionalidades Avancadas (Roadmap)**:
+  - **Want List (Alerta de Preco Alvo)**: Monitoramento de cartas desejadas com notificacao/alerta na dashboard quando o preco de mercado atingir o alvo desejado.
+  - **Trade Analyzer (Calculadora de Trocas)**: Tela rapida para comparar valores de cartas do "Lado A" e "Lado B", indicando a diferenca percentual e quem esta ganhando na troca, incluindo consulta rapida ao "Score" do parceiro de troca.
+  - **Gestao de Envios / Trânsito**: Adicao de codigo de rastreio em vendas despachadas, acompanhando a entrega automaticamente com sugestao de cobranca (PIX) para fiados apos a entrega do correio.
+  - **Organizacao Fisica (Binders e Decks)**: Campo de localizacao no estoque (Ex: Pasta Principal, Caixa de Bulk, Deck Modern X), para localizacao rapida no momento da venda/troca.
+  - **Analise de Liquidez**: Integracao com tier/ranking de formatos para classificar cartas como "Alta/Baixa Liquidez" no estoque baseando-se no hype e jogabilidade, auxiliando na decisao de venda.

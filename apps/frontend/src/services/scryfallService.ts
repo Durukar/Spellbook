@@ -35,6 +35,12 @@ export const scryfallService = {
         return request<ScryfallCardList>(`${BASE_URL}/cards/search?${params}`);
     },
 
+    searchCardsExactName(exactName: string): Promise<ScryfallCardList> {
+        // use !"name" for exact match, unique=prints gets all printings
+        const params = new URLSearchParams({ q: `!"${exactName}"`, unique: 'prints' });
+        return request<ScryfallCardList>(`${BASE_URL}/cards/search?${params}`);
+    },
+
     getCardById(id: string): Promise<ScryfallCardDetail> {
         return request<ScryfallCardDetail>(`${BASE_URL}/cards/${id}`);
     },

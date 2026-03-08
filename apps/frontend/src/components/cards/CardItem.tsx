@@ -1,7 +1,9 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { RefreshCw } from 'lucide-react';
+import { RefreshCw, Plus } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { AddStockSheet } from '../stock/AddStockSheet';
 import type { ScryfallCard } from '@/types/scryfall';
 
 const RARITY_COLORS: Record<ScryfallCard['rarity'], string> = {
@@ -26,6 +28,8 @@ export function CardItem({ card }: CardItemProps) {
 
     const price = card.prices.usd ?? card.prices.eur ?? null;
     const currency = card.prices.usd ? 'USD' : card.prices.eur ? 'EUR' : null;
+
+    const [isAddStockOpen, setIsAddStockOpen] = useState(false);
 
     const handleFlip = (e: React.MouseEvent) => {
         e.stopPropagation();
@@ -116,12 +120,35 @@ export function CardItem({ card }: CardItemProps) {
                     {card.name}
                 </p>
                 <p className="text-xs text-muted-foreground line-clamp-1">{card.set_name}</p>
-                {price && currency && (
-                    <p className="text-xs font-mono font-bold text-primary mt-1">
-                        {currency} {parseFloat(price).toFixed(2)}
-                    </p>
-                )}
+                <div className="flex items-center justify-between mt-1">
+                    {price && currency ? (
+                        <p className="text-xs font-mono font-bold text-primary">
+                            {currency} {parseFloat(price).toFixed(2)}
+                        </p>
+                    ) : (
+                        <p className="text-xs text-muted-foreground italic">Sem preço</p>
+                    )}
+
+                    <Button
+                        size="icon"
+                        variant="secondary"
+                        className="h-6 w-6 rounded-full"
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            setIsAddStockOpen(true);
+                        }}
+                        title="Adicionar ao Estoque"
+                    >
+                        <Plus className="h-3 w-3" />
+                    </Button>
+                </div>
             </div>
+
+            <AddStockSheet
+                card={card}
+                isOpen={isAddStockOpen}
+                onClose={() => setIsAddStockOpen(false)}
+            />
         </motion.div>
     );
 }
