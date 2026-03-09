@@ -133,7 +133,7 @@ function StockGridCard({
 }
 
 export function StockListView() {
-    const { items, isLoading, error, viewMode, setViewMode } = useStockListViewModel()
+    const { items, isLoading, error, viewMode, setViewMode, refresh } = useStockListViewModel()
     const { selectedItem, isOpen, openDetail, closeDetail } = useCardDetailViewModel()
 
     if (isLoading) {
@@ -224,7 +224,13 @@ export function StockListView() {
             </div>
 
             {selectedItem && (
-                <CardDetailDrawer item={selectedItem} isOpen={isOpen} onClose={closeDetail} />
+                <CardDetailDrawer
+                    item={selectedItem}
+                    isOpen={isOpen}
+                    onClose={closeDetail}
+                    onUpdate={() => refresh()}
+                    onDelete={() => { closeDetail(); refresh() }}
+                />
             )}
         </>
     )

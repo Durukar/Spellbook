@@ -20,7 +20,8 @@ export function useStockListViewModel() {
         setViewModeState(mode)
     }
 
-    useEffect(() => {
+    const fetchItems = () => {
+        setIsLoading(true)
         apiService.listStockItems()
             .then(data => {
                 setItems(data)
@@ -30,7 +31,11 @@ export function useStockListViewModel() {
                 setError(err.message)
                 setIsLoading(false)
             })
-    }, [])
+    }
 
-    return { items, isLoading, error, viewMode, setViewMode }
+    useEffect(() => { fetchItems() }, [])
+
+    const refresh = () => fetchItems()
+
+    return { items, isLoading, error, viewMode, setViewMode, refresh }
 }

@@ -1,5 +1,5 @@
 import { db } from '../db/client'
-import type { StockItem, CreateStockItemDto } from '../types/stock'
+import type { StockItem, CreateStockItemDto, UpdateStockItemDto } from '../types/stock'
 
 export const stockService = {
   async create(dto: CreateStockItemDto): Promise<StockItem> {
@@ -21,5 +21,35 @@ export const stockService = {
       'SELECT * FROM stock_items ORDER BY created_at DESC'
     )
     return result.rows
+  },
+
+  async update(id: string, dto: UpdateStockItemDto): Promise<StockItem | null> {
+    const fields: string[] = []
+    const values: unknown[] = []
+    let idx = 1
+
+    if (dto.quantity !== undefined) { fields.push(`quantity = $${idx++}`); values.push(dto.quantity) }
+    if (dto.purchase_price !== undefined) { fields.push(`purchase_price = $${idx++}`); values.push(dto.purchase_price) }
+    if (dto.condition !== undefined) { fields.push(`condition = $${idx++}`); values.push(dto.condition) }
+    if (dto.is_foil !== undefined) { fields.push(`is_foil = $${idx++}`); values.push(dto.is_foil) }
+
+    if (fields.length === 0) return null
+
+    fields.push(`updated_at = NOW()`)
+    values.push(id)
+
+    const result = await db.query<StockItem>(
+      `UPDATE stock_items SET ${fields.join(', ')} WHERE id = $${idx} RETURNING *`,
+      values
+    )
+    return result.rows[0] ?? null
+  },
+
+  async delete(id: string): Promise<boolean> {
+    const result = await db.query(
+      'DELETE FROM stock_items WHERE id = $1',
+      [id]
+    )
+    return (result.rowCount ?? 0) > 0
   },
 }

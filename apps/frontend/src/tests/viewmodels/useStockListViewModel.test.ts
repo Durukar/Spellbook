@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { renderHook, waitFor } from '@testing-library/react'
+import { renderHook, waitFor, act } from '@testing-library/react'
 
 vi.mock('@/services/apiService', () => ({
     apiService: {
@@ -68,5 +68,23 @@ describe('useStockListViewModel', () => {
 
         expect(result.current.items).toHaveLength(0)
         expect(result.current.error).toBeNull()
+    })
+
+    it('expoe funcao refresh que busca os itens novamente', async () => {
+        vi.mocked(apiService.listStockItems).mockResolvedValue(mockItems as never)
+
+        const { result } = renderHook(() => useStockListViewModel())
+        await waitFor(() => expect(result.current.isLoading).toBe(false))
+
+        const updatedItems = [
+            ...mockItems,
+            { ...mockItems[0], id: 'novo-id', card_name: 'Black Lotus' },
+        ]
+        vi.mocked(apiService.listStockItems).mockResolvedValue(updatedItems as never)
+
+        await act(async () => result.current.refresh())
+
+        await waitFor(() => expect(result.current.items).toHaveLength(2))
+        expect(result.current.items[1].card_name).toBe('Black Lotus')
     })
 })

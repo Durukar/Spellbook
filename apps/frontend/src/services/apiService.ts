@@ -1,5 +1,5 @@
 import type { ScryfallCardList } from '@/types/scryfall'
-import type { BackendStockItem, CreateStockItemPayload } from '@/types/stock'
+import type { BackendStockItem, CreateStockItemPayload, UpdateStockItemPayload } from '@/types/stock'
 
 const API_URL = import.meta.env.VITE_API_URL ?? 'http://localhost:8787'
 
@@ -35,5 +35,18 @@ export const apiService = {
 
     listStockItems(): Promise<BackendStockItem[]> {
         return request<BackendStockItem[]>('/api/v1/stock')
+    },
+
+    updateStockItem(id: string, payload: UpdateStockItemPayload): Promise<BackendStockItem> {
+        return request<BackendStockItem>(`/api/v1/stock/${id}`, {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload),
+        })
+    },
+
+    async deleteStockItem(id: string): Promise<void> {
+        const res = await fetch(`${API_URL}/api/v1/stock/${id}`, { method: 'DELETE' })
+        if (!res.ok) throw new Error(`API error: ${res.status}`)
     },
 }

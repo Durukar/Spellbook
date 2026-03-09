@@ -24,3 +24,10 @@ export interface CreateStockItemDto {
   quantity: number
   is_foil: boolean
 }
+
+export interface UpdateStockItemDto {
+  quantity?: number
+  purchase_price?: number
+  condition?: CardCondition
+  is_foil?: boolean
+}
