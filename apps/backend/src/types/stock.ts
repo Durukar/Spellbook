@@ -10,6 +10,7 @@ export interface StockItem {
   purchase_date: string
   condition: CardCondition
   quantity: number
+  is_foil: boolean
   created_at: string
 }
 
@@ -21,4 +22,5 @@ export interface CreateStockItemDto {
   purchase_price: number
   condition: CardCondition
   quantity: number
+  is_foil: boolean
 }

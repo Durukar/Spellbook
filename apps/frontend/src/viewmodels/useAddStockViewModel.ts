@@ -5,7 +5,6 @@ import type { ScryfallCard } from '../types/scryfall';
 import type { CardCondition } from '../models/Stock';
 
 export function useAddStockViewModel(initialCard: ScryfallCard | null) {
-    // Determine initial state values directly to avoid cascading renders in useEffect
     const initialPrice = initialCard?.prices?.usd ?? initialCard?.prices?.eur ?? '';
 
     const [selectedCard, setSelectedCard] = useState<ScryfallCard | null>(initialCard);
@@ -14,10 +13,10 @@ export function useAddStockViewModel(initialCard: ScryfallCard | null) {
     const [price, setPrice] = useState<string>(initialPrice);
     const [condition, setCondition] = useState<CardCondition>('NM');
     const [quantity, setQuantity] = useState<number>(1);
+    const [isFoil, setIsFoil] = useState<boolean>(false);
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [error, setError] = useState<string | null>(null);
 
-    // Fetch printings when initialCard changes
     useEffect(() => {
         if (!initialCard) return;
 
@@ -39,11 +38,22 @@ export function useAddStockViewModel(initialCard: ScryfallCard | null) {
         return () => { isMounted = false; };
     }, [initialCard]);
 
-    // When the user selects a new printing manually, update the price
     const handleSetSelectedCard = (card: ScryfallCard) => {
         setSelectedCard(card);
-        const newPrice = card.prices?.usd ?? card.prices?.eur ?? '';
+        const newPrice = isFoil
+            ? (card.prices?.usd_foil ?? card.prices?.usd ?? card.prices?.eur ?? '')
+            : (card.prices?.usd ?? card.prices?.eur ?? '');
         setPrice(newPrice);
+    };
+
+    const handleSetIsFoil = (foil: boolean) => {
+        setIsFoil(foil);
+        if (selectedCard) {
+            const newPrice = foil
+                ? (selectedCard.prices?.usd_foil ?? selectedCard.prices?.usd ?? selectedCard.prices?.eur ?? '')
+                : (selectedCard.prices?.usd ?? selectedCard.prices?.eur ?? '');
+            setPrice(newPrice);
+        }
     };
 
     const saveStockItem = async (): Promise<boolean> => {
@@ -64,6 +74,7 @@ export function useAddStockViewModel(initialCard: ScryfallCard | null) {
                 purchasePrice: parseFloat(price) || 0,
                 condition,
                 quantity,
+                isFoil,
             });
 
             setIsLoading(false);
@@ -78,7 +89,7 @@ export function useAddStockViewModel(initialCard: ScryfallCard | null) {
 
     return {
         selectedCard,
-        setSelectedCard: handleSetSelectedCard, // keep external API the same but use the new handler
+        setSelectedCard: handleSetSelectedCard,
         printings,
         price,
         setPrice,
@@ -86,6 +97,8 @@ export function useAddStockViewModel(initialCard: ScryfallCard | null) {
         setCondition,
         quantity,
         setQuantity,
+        isFoil,
+        setIsFoil: handleSetIsFoil,
         isLoading,
         error,
         saveStockItem,

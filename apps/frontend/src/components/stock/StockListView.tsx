@@ -3,6 +3,7 @@ import { LayoutList, LayoutGrid } from 'lucide-react'
 import { useStockListViewModel } from '@/viewmodels/useStockListViewModel'
 import { useCardDetailViewModel } from '@/viewmodels/useCardDetailViewModel'
 import { CardDetailDrawer } from '@/components/stock/CardDetailDrawer'
+import { FoilCardOverlay, FoilBadge } from '@/components/stock/FoilOverlay'
 import type { BackendStockItem } from '@/types/stock'
 
 function StockCard({ item, onClick }: { item: BackendStockItem; onClick?: () => void }) {
@@ -13,10 +14,10 @@ function StockCard({ item, onClick }: { item: BackendStockItem; onClick?: () => 
 
     return (
         <div
-            className="bg-bg-elevated border border-border-subtle rounded-xl overflow-hidden flex gap-4 p-4 hover:border-border-default transition-colors cursor-pointer"
+            className={`bg-bg-elevated border rounded-xl overflow-hidden flex gap-4 p-4 hover:border-border-default transition-colors cursor-pointer ${item.is_foil ? 'foil-border' : 'border-border-subtle'}`}
             onClick={onClick}
         >
-            <div className="w-16 h-22 shrink-0 rounded-lg overflow-hidden bg-bg-muted">
+            <div className="w-16 shrink-0 rounded-lg overflow-hidden bg-bg-muted relative" style={{ aspectRatio: '2.5/3.5' }}>
                 {item.image_url ? (
                     <img
                         src={item.image_url}
@@ -28,10 +29,14 @@ function StockCard({ item, onClick }: { item: BackendStockItem; onClick?: () => 
                         Sem imagem
                     </div>
                 )}
+                {item.is_foil && <FoilCardOverlay />}
             </div>
 
             <div className="flex-1 min-w-0">
-                <h3 className="font-semibold text-text-primary truncate">{item.card_name}</h3>
+                <div className="flex items-center gap-2">
+                    <h3 className="font-semibold text-text-primary truncate">{item.card_name}</h3>
+                    {item.is_foil && <FoilBadge />}
+                </div>
                 <p className="text-sm text-text-muted mt-0.5 truncate">{item.set_name}</p>
 
                 <div className="flex items-center gap-3 mt-3">
@@ -82,7 +87,7 @@ function StockGridCard({
                 </>
             )}
 
-            <div className="relative w-full h-full rounded-xl overflow-hidden bg-bg-muted border border-border-subtle">
+            <div className={`relative w-full h-full rounded-xl overflow-hidden bg-bg-muted ${item.is_foil ? 'foil-border' : 'border border-border-subtle'}`}>
                 {item.image_url ? (
                     <img
                         src={item.image_url}
@@ -94,6 +99,8 @@ function StockGridCard({
                         {item.card_name}
                     </div>
                 )}
+
+                {item.is_foil && <FoilCardOverlay />}
 
                 <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex flex-col justify-end p-3 gap-1">
                     <p className="text-white text-xs font-semibold leading-tight line-clamp-2">
@@ -107,6 +114,12 @@ function StockGridCard({
                         <span className="text-white text-xs font-medium">{price}</span>
                     </div>
                 </div>
+
+                {item.is_foil && (
+                    <div className="absolute top-2 left-2">
+                        <FoilBadge />
+                    </div>
+                )}
 
                 {isStack && (
                     <div className="absolute top-2 right-2 flex items-center gap-0.5 px-1.5 py-0.5 rounded-md backdrop-blur-sm bg-black/50 border border-white/10 text-white/80 text-[10px] font-medium tracking-wide">

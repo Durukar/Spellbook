@@ -25,6 +25,7 @@ import { AlertCircle, DollarSign, Hash, Check } from 'lucide-react';
 import type { ScryfallCard } from '@/types/scryfall';
 import type { CardCondition } from '@/models/Stock';
 import { useAddStockViewModel } from '@/viewmodels/useAddStockViewModel';
+import { FoilCardOverlay, FoilToggleButton } from '@/components/stock/FoilOverlay';
 
 interface AddStockSheetProps {
     card: ScryfallCard | null;
@@ -79,7 +80,7 @@ export function AddStockSheet({ card, isOpen, onClose, onSuccess }: AddStockShee
                 {/* Imagem */}
                 <div className="relative bg-bg-muted/40 flex items-center justify-center py-8 px-8 shrink-0">
                     <div
-                        className="rounded-xl overflow-hidden shadow-2xl ring-1 ring-white/10"
+                        className={`rounded-xl overflow-hidden shadow-2xl ring-1 ring-white/10 relative ${vm.isFoil ? 'foil-border' : ''}`}
                         style={{ width: '200px', aspectRatio: '2.5/3.5' }}
                     >
                         {imageUrl ? (
@@ -93,6 +94,7 @@ export function AddStockSheet({ card, isOpen, onClose, onSuccess }: AddStockShee
                                 {displayCard?.name}
                             </div>
                         )}
+                        {vm.isFoil && <FoilCardOverlay />}
                     </div>
 
                     <div
@@ -185,6 +187,23 @@ export function AddStockSheet({ card, isOpen, onClose, onSuccess }: AddStockShee
                             <p className="text-sm text-text-muted">{displayCard?.set_name}</p>
                         )}
                     </SheetHeader>
+
+                    <div className="h-px bg-border-subtle" />
+
+                    {/* Foil toggle */}
+                    <div className="flex items-center justify-between">
+                        <div>
+                            <span className="text-xs font-semibold text-text-muted uppercase tracking-wider">
+                                Versao Foil
+                            </span>
+                            {vm.isFoil && vm.selectedCard?.prices?.usd_foil && (
+                                <p className="text-[11px] text-text-muted mt-0.5">
+                                    Preco foil: ${vm.selectedCard.prices.usd_foil}
+                                </p>
+                            )}
+                        </div>
+                        <FoilToggleButton active={vm.isFoil} onClick={() => vm.setIsFoil(!vm.isFoil)} />
+                    </div>
 
                     <div className="h-px bg-border-subtle" />
 

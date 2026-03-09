@@ -6,6 +6,7 @@ import {
 } from '@/components/ui/sheet'
 import type { BackendStockItem } from '@/types/stock'
 import type { CardCondition } from '@/models/Stock'
+import { FoilCardOverlay, FoilBadge } from '@/components/stock/FoilOverlay'
 
 const CONDITION_LABELS: Record<CardCondition, string> = {
     NM: 'Near Mint',
@@ -47,7 +48,7 @@ export function CardDetailDrawer({ item, isOpen, onClose }: CardDetailDrawerProp
             >
                 <div className="relative bg-bg-muted/40 flex items-center justify-center py-8 px-8 shrink-0">
                     <div
-                        className="rounded-xl overflow-hidden shadow-2xl ring-1 ring-white/10"
+                        className={`rounded-xl overflow-hidden shadow-2xl ring-1 ring-white/10 relative ${item.is_foil ? 'foil-border' : ''}`}
                         style={{ width: '200px', aspectRatio: '2.5/3.5' }}
                     >
                         {item.image_url ? (
@@ -61,6 +62,7 @@ export function CardDetailDrawer({ item, isOpen, onClose }: CardDetailDrawerProp
                                 {item.card_name}
                             </div>
                         )}
+                        {item.is_foil && <FoilCardOverlay />}
                     </div>
 
                     <div
@@ -75,15 +77,25 @@ export function CardDetailDrawer({ item, isOpen, onClose }: CardDetailDrawerProp
 
                 <div className="flex-1 overflow-y-auto px-6 py-6 space-y-6">
                     <SheetHeader className="p-0 gap-1">
-                        <SheetTitle className="text-xl font-bold text-text-primary leading-snug">
-                            {item.card_name}
-                        </SheetTitle>
+                        <div className="flex items-center gap-2 flex-wrap">
+                            <SheetTitle className="text-xl font-bold text-text-primary leading-snug">
+                                {item.card_name}
+                            </SheetTitle>
+                            {item.is_foil && <FoilBadge />}
+                        </div>
                         <p className="text-sm text-text-muted">{item.set_name}</p>
                     </SheetHeader>
 
                     <div className="h-px bg-border-subtle" />
 
                     <div className="space-y-4">
+                        {item.is_foil && (
+                            <div className="flex items-center justify-between">
+                                <span className="text-sm text-text-muted">Versao</span>
+                                <FoilBadge className="text-xs px-2 py-1" />
+                            </div>
+                        )}
+
                         <div className="flex items-center justify-between">
                             <span className="text-sm text-text-muted">Condição</span>
                             <span

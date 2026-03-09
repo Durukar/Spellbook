@@ -11,6 +11,7 @@ class StockService {
             purchase_price: item.purchasePrice,
             condition: item.condition,
             quantity: item.quantity,
+            is_foil: item.isFoil,
         })
 
         return {
@@ -23,6 +24,7 @@ class StockService {
             purchaseDate: backendItem.purchase_date,
             condition: backendItem.condition,
             quantity: backendItem.quantity,
+            isFoil: backendItem.is_foil,
         }
     }
 
@@ -38,6 +40,7 @@ class StockService {
             purchaseDate: item.purchase_date,
             condition: item.condition,
             quantity: item.quantity,
+            isFoil: item.is_foil,
         }))
     }
 
