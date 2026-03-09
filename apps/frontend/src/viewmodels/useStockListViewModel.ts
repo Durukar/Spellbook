@@ -2,10 +2,23 @@ import { useState, useEffect } from 'react'
 import { apiService } from '@/services/apiService'
 import type { BackendStockItem } from '@/types/stock'
 
+type ViewMode = 'list' | 'grid'
+
+const VIEW_MODE_KEY = 'stock-view-mode'
+
 export function useStockListViewModel() {
     const [items, setItems] = useState<BackendStockItem[]>([])
     const [isLoading, setIsLoading] = useState(true)
     const [error, setError] = useState<string | null>(null)
+    const [viewMode, setViewModeState] = useState<ViewMode>(() => {
+        const stored = localStorage.getItem(VIEW_MODE_KEY)
+        return stored === 'grid' ? 'grid' : 'list'
+    })
+
+    const setViewMode = (mode: ViewMode) => {
+        localStorage.setItem(VIEW_MODE_KEY, mode)
+        setViewModeState(mode)
+    }
 
     useEffect(() => {
         apiService.listStockItems()
@@ -19,5 +32,5 @@ export function useStockListViewModel() {
             })
     }, [])
 
-    return { items, isLoading, error }
+    return { items, isLoading, error, viewMode, setViewMode }
 }

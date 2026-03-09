@@ -9,5 +9,6 @@ CREATE TABLE IF NOT EXISTS stock_items (
   condition VARCHAR(3) NOT NULL CHECK (condition IN ('NM', 'SP', 'MP', 'HP', 'DMG')),
   quantity INTEGER NOT NULL DEFAULT 1,
   created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
-  updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW()
+  updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
+  CONSTRAINT stock_items_scryfall_condition_unique UNIQUE (scryfall_id, condition)
 );

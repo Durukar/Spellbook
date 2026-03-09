@@ -6,6 +6,10 @@ export const stockService = {
     const result = await db.query<StockItem>(
       `INSERT INTO stock_items (scryfall_id, card_name, set_name, image_url, purchase_price, condition, quantity)
        VALUES ($1, $2, $3, $4, $5, $6, $7)
+       ON CONFLICT (scryfall_id, condition)
+       DO UPDATE SET
+         quantity = stock_items.quantity + EXCLUDED.quantity,
+         updated_at = NOW()
        RETURNING *`,
       [dto.scryfall_id, dto.card_name, dto.set_name, dto.image_url, dto.purchase_price, dto.condition, dto.quantity]
     )
