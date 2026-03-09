@@ -1,16 +1,21 @@
 import { motion } from 'framer-motion'
 import { LayoutList, LayoutGrid } from 'lucide-react'
 import { useStockListViewModel } from '@/viewmodels/useStockListViewModel'
+import { useCardDetailViewModel } from '@/viewmodels/useCardDetailViewModel'
+import { CardDetailDrawer } from '@/components/stock/CardDetailDrawer'
 import type { BackendStockItem } from '@/types/stock'
 
-function StockCard({ item }: { item: BackendStockItem }) {
+function StockCard({ item, onClick }: { item: BackendStockItem; onClick?: () => void }) {
     const price = Number(item.purchase_price).toLocaleString('pt-BR', {
         style: 'currency',
         currency: 'BRL',
     })
 
     return (
-        <div className="bg-bg-elevated border border-border-subtle rounded-xl overflow-hidden flex gap-4 p-4 hover:border-border-default transition-colors">
+        <div
+            className="bg-bg-elevated border border-border-subtle rounded-xl overflow-hidden flex gap-4 p-4 hover:border-border-default transition-colors cursor-pointer"
+            onClick={onClick}
+        >
             <div className="w-16 h-22 shrink-0 rounded-lg overflow-hidden bg-bg-muted">
                 {item.image_url ? (
                     <img
@@ -45,7 +50,15 @@ function StockCard({ item }: { item: BackendStockItem }) {
     )
 }
 
-function StockGridCard({ item, index }: { item: BackendStockItem; index: number }) {
+function StockGridCard({
+    item,
+    index,
+    onClick,
+}: {
+    item: BackendStockItem
+    index: number
+    onClick?: () => void
+}) {
     const price = Number(item.purchase_price).toLocaleString('pt-BR', {
         style: 'currency',
         currency: 'BRL',
@@ -60,6 +73,7 @@ function StockGridCard({ item, index }: { item: BackendStockItem; index: number 
             transition={{ duration: 0.2, delay: index * 0.03 }}
             className="group relative cursor-pointer"
             style={{ aspectRatio: '2.5/3.5' }}
+            onClick={onClick}
         >
             {isStack && (
                 <>
@@ -107,6 +121,7 @@ function StockGridCard({ item, index }: { item: BackendStockItem; index: number 
 
 export function StockListView() {
     const { items, isLoading, error, viewMode, setViewMode } = useStockListViewModel()
+    const { selectedItem, isOpen, openDetail, closeDetail } = useCardDetailViewModel()
 
     if (isLoading) {
         return (
@@ -125,61 +140,79 @@ export function StockListView() {
     }
 
     return (
-        <div className="flex flex-col h-full overflow-hidden">
-            <div className="px-6 py-5 border-b border-border-subtle shrink-0 flex items-center justify-between">
-                <div>
-                    <h1 className="text-2xl font-bold text-text-primary">Todas as Cartas</h1>
-                    <p className="text-sm text-text-muted mt-1">
-                        {items.length} {items.length === 1 ? 'carta cadastrada' : 'cartas cadastradas'}
-                    </p>
+        <>
+            <div className="flex flex-col h-full overflow-hidden">
+                <div className="px-6 py-5 border-b border-border-subtle shrink-0 flex items-center justify-between">
+                    <div>
+                        <h1 className="text-2xl font-bold text-text-primary">Todas as Cartas</h1>
+                        <p className="text-sm text-text-muted mt-1">
+                            {items.length}{' '}
+                            {items.length === 1 ? 'carta cadastrada' : 'cartas cadastradas'}
+                        </p>
+                    </div>
+
+                    <div className="flex items-center gap-1 p-1 rounded-lg bg-bg-muted border border-border-subtle">
+                        <button
+                            onClick={() => setViewMode?.('list')}
+                            className={`p-1.5 rounded-md transition-colors ${
+                                viewMode === 'list'
+                                    ? 'bg-bg-elevated border border-border-default text-text-primary shadow-sm'
+                                    : 'text-text-muted hover:text-text-secondary'
+                            }`}
+                            title="Modo lista"
+                        >
+                            <LayoutList size={16} />
+                        </button>
+                        <button
+                            onClick={() => setViewMode?.('grid')}
+                            className={`p-1.5 rounded-md transition-colors ${
+                                viewMode === 'grid'
+                                    ? 'bg-bg-elevated border border-border-default text-text-primary shadow-sm'
+                                    : 'text-text-muted hover:text-text-secondary'
+                            }`}
+                            title="Modo grade"
+                        >
+                            <LayoutGrid size={16} />
+                        </button>
+                    </div>
                 </div>
 
-                <div className="flex items-center gap-1 p-1 rounded-lg bg-bg-muted border border-border-subtle">
-                    <button
-                        onClick={() => setViewMode('list')}
-                        className={`p-1.5 rounded-md transition-colors ${
-                            viewMode === 'list'
-                                ? 'bg-bg-elevated border border-border-default text-text-primary shadow-sm'
-                                : 'text-text-muted hover:text-text-secondary'
-                        }`}
-                        title="Modo lista"
-                    >
-                        <LayoutList size={16} />
-                    </button>
-                    <button
-                        onClick={() => setViewMode('grid')}
-                        className={`p-1.5 rounded-md transition-colors ${
-                            viewMode === 'grid'
-                                ? 'bg-bg-elevated border border-border-default text-text-primary shadow-sm'
-                                : 'text-text-muted hover:text-text-secondary'
-                        }`}
-                        title="Modo grade"
-                    >
-                        <LayoutGrid size={16} />
-                    </button>
+                <div className="flex-1 overflow-y-auto px-6 py-4">
+                    {items.length === 0 ? (
+                        <div className="flex flex-col items-center justify-center h-full gap-3 text-text-muted">
+                            <p className="text-lg">Nenhuma carta cadastrada ainda.</p>
+                            <p className="text-sm">
+                                Use a busca para encontrar cartas e adicione ao seu estoque.
+                            </p>
+                        </div>
+                    ) : viewMode === 'grid' ? (
+                        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3">
+                            {items.map((item, index) => (
+                                <StockGridCard
+                                    key={item.id}
+                                    item={item}
+                                    index={index}
+                                    onClick={() => openDetail(item)}
+                                />
+                            ))}
+                        </div>
+                    ) : (
+                        <div className="flex flex-col gap-3">
+                            {items.map((item) => (
+                                <StockCard
+                                    key={item.id}
+                                    item={item}
+                                    onClick={() => openDetail(item)}
+                                />
+                            ))}
+                        </div>
+                    )}
                 </div>
             </div>
 
-            <div className="flex-1 overflow-y-auto px-6 py-4">
-                {items.length === 0 ? (
-                    <div className="flex flex-col items-center justify-center h-full gap-3 text-text-muted">
-                        <p className="text-lg">Nenhuma carta cadastrada ainda.</p>
-                        <p className="text-sm">Use a busca para encontrar cartas e adicione ao seu estoque.</p>
-                    </div>
-                ) : viewMode === 'grid' ? (
-                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3">
-                        {items.map((item, index) => (
-                            <StockGridCard key={item.id} item={item} index={index} />
-                        ))}
-                    </div>
-                ) : (
-                    <div className="flex flex-col gap-3">
-                        {items.map(item => (
-                            <StockCard key={item.id} item={item} />
-                        ))}
-                    </div>
-                )}
-            </div>
-        </div>
+            {selectedItem && (
+                <CardDetailDrawer item={selectedItem} isOpen={isOpen} onClose={closeDetail} />
+            )}
+        </>
     )
 }

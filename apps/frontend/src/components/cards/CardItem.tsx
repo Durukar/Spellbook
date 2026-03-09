@@ -1,8 +1,7 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { RefreshCw, Plus } from 'lucide-react';
+import { RefreshCw } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
 import { AddStockSheet } from '../stock/AddStockSheet';
 import type { ScryfallCard } from '@/types/scryfall';
 
@@ -21,6 +20,7 @@ interface CardItemProps {
 
 export function CardItem({ card }: CardItemProps) {
     const [isFlipped, setIsFlipped] = useState(false);
+    const [isAddStockOpen, setIsAddStockOpen] = useState(false);
 
     const frontImage = card.image_uris?.normal ?? card.card_faces?.[0]?.image_uris?.normal;
     const backImage = card.card_faces?.[1]?.image_uris?.normal;
@@ -28,8 +28,6 @@ export function CardItem({ card }: CardItemProps) {
 
     const price = card.prices.usd ?? card.prices.eur ?? null;
     const currency = card.prices.usd ? 'USD' : card.prices.eur ? 'EUR' : null;
-
-    const [isAddStockOpen, setIsAddStockOpen] = useState(false);
 
     const handleFlip = (e: React.MouseEvent) => {
         e.stopPropagation();
@@ -43,8 +41,9 @@ export function CardItem({ card }: CardItemProps) {
             whileHover={{ y: -4, scale: 1.02 }}
             transition={{ duration: 0.2 }}
             className="group relative flex flex-col rounded-xl bg-card border border-border overflow-hidden cursor-pointer shadow-sm hover:shadow-lg hover:border-primary/30 transition-shadow"
+            onClick={() => setIsAddStockOpen(true)}
         >
-            {/* Image area — sem overflow-hidden para nao quebrar transform-style: preserve-3d */}
+            {/* Image area */}
             <div
                 className="relative aspect-[2.5/3.5] w-full bg-muted"
                 style={{ perspective: '800px' }}
@@ -120,7 +119,7 @@ export function CardItem({ card }: CardItemProps) {
                     {card.name}
                 </p>
                 <p className="text-xs text-muted-foreground line-clamp-1">{card.set_name}</p>
-                <div className="flex items-center justify-between mt-1">
+                <div className="flex items-center mt-1">
                     {price && currency ? (
                         <p className="text-xs font-mono font-bold text-primary">
                             {currency} {parseFloat(price).toFixed(2)}
@@ -128,19 +127,6 @@ export function CardItem({ card }: CardItemProps) {
                     ) : (
                         <p className="text-xs text-muted-foreground italic">Sem preço</p>
                     )}
-
-                    <Button
-                        size="icon"
-                        variant="secondary"
-                        className="h-6 w-6 rounded-full"
-                        onClick={(e) => {
-                            e.stopPropagation();
-                            setIsAddStockOpen(true);
-                        }}
-                        title="Adicionar ao Estoque"
-                    >
-                        <Plus className="h-3 w-3" />
-                    </Button>
                 </div>
             </div>
 
