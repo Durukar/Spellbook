@@ -9,6 +9,7 @@ import {
     Sun,
     ChevronDown,
     Search,
+    Users,
 } from 'lucide-react';
 import {
     Sidebar,
@@ -34,7 +35,7 @@ import {
 } from '@/components/ui/collapsible';
 import { useTheme } from '@/components/theme-provider';
 
-export type AppView = 'dashboard' | 'search' | 'allCards';
+export type AppView = 'dashboard' | 'search' | 'allCards' | 'buyers';
 
 interface AppSidebarProps {
     currentView?: AppView;
@@ -45,9 +46,8 @@ export function AppSidebar({ currentView = 'dashboard', onNavigate }: AppSidebar
     const { theme, setTheme } = useTheme();
 
     return (
-        <Sidebar collapsible="icon" className="border-r border-sidebar-border">
+        <Sidebar collapsible="icon" className="border-r border-sidebar-border select-none">
             <SidebarHeader className="p-0">
-                {/* Logo + Collapse Toggle */}
                 <div className="h-14 flex items-center justify-between px-4 shrink-0 group-data-[collapsible=icon]:px-0 group-data-[collapsible=icon]:justify-center">
                     <div className="flex items-center gap-3">
                         <div className="w-8 h-8 flex items-center justify-center shrink-0 group-data-[collapsible=icon]:hidden">
@@ -65,9 +65,8 @@ export function AppSidebar({ currentView = 'dashboard', onNavigate }: AppSidebar
             </SidebarHeader>
 
             <SidebarContent>
-                {/* Main Navigation */}
                 <SidebarGroup>
-                    <SidebarGroupLabel>Navigation</SidebarGroupLabel>
+                    <SidebarGroupLabel>Navegacao</SidebarGroupLabel>
                     <SidebarGroupContent>
                         <SidebarMenu>
                             <SidebarMenuItem>
@@ -93,18 +92,17 @@ export function AppSidebar({ currentView = 'dashboard', onNavigate }: AppSidebar
                             </SidebarMenuItem>
 
                             <SidebarMenuItem>
-                                <SidebarMenuButton tooltip="Transactions">
+                                <SidebarMenuButton tooltip="Transacoes">
                                     <BarChart3 />
-                                    <span>Transactions</span>
+                                    <span>Transacoes</span>
                                 </SidebarMenuButton>
                             </SidebarMenuItem>
 
-                            {/* Portfolio with collapsible submenu */}
                             <Collapsible defaultOpen className="group/collapsible">
                                 <SidebarMenuItem>
-                                    <CollapsibleTrigger render={<SidebarMenuButton tooltip="Portfolio" />}>
+                                    <CollapsibleTrigger render={<SidebarMenuButton tooltip="Colecao" />}>
                                         <BookOpen />
-                                        <span>Portfolio</span>
+                                        <span>Colecao</span>
                                         <ChevronDown className="ml-auto transition-transform group-data-[state=open]/collapsible:rotate-180" />
                                     </CollapsibleTrigger>
                                     <CollapsibleContent>
@@ -114,17 +112,17 @@ export function AppSidebar({ currentView = 'dashboard', onNavigate }: AppSidebar
                                                     isActive={currentView === 'allCards'}
                                                     onClick={() => onNavigate?.('allCards')}
                                                 >
-                                                    <span>All Cards</span>
+                                                    <span>Todas as Cartas</span>
                                                 </SidebarMenuSubButton>
                                             </SidebarMenuSubItem>
                                             <SidebarMenuSubItem>
                                                 <SidebarMenuSubButton>
-                                                    <span>By Set</span>
+                                                    <span>Por Colecao</span>
                                                 </SidebarMenuSubButton>
                                             </SidebarMenuSubItem>
                                             <SidebarMenuSubItem>
                                                 <SidebarMenuSubButton>
-                                                    <span>Wishlist</span>
+                                                    <span>Lista de Desejos</span>
                                                 </SidebarMenuSubButton>
                                             </SidebarMenuSubItem>
                                         </SidebarMenuSub>
@@ -133,23 +131,39 @@ export function AppSidebar({ currentView = 'dashboard', onNavigate }: AppSidebar
                             </Collapsible>
 
                             <SidebarMenuItem>
-                                <SidebarMenuButton tooltip="Analytics">
+                                <SidebarMenuButton tooltip="Relatorios">
                                     <BarChart3 />
-                                    <span>Analytics</span>
+                                    <span>Relatorios</span>
                                 </SidebarMenuButton>
                             </SidebarMenuItem>
 
-                            <SidebarMenuItem>
-                                <SidebarMenuButton tooltip="Wallet">
-                                    <Wallet />
-                                    <span>Wallet</span>
-                                </SidebarMenuButton>
-                            </SidebarMenuItem>
+                            <Collapsible defaultOpen className="group/collapsible">
+                                <SidebarMenuItem>
+                                    <CollapsibleTrigger render={<SidebarMenuButton tooltip="Vendas" />}>
+                                        <Wallet />
+                                        <span>Vendas</span>
+                                        <ChevronDown className="ml-auto transition-transform group-data-[state=open]/collapsible:rotate-180" />
+                                    </CollapsibleTrigger>
+                                    <CollapsibleContent>
+                                        <SidebarMenuSub>
+                                            <SidebarMenuSubItem>
+                                                <SidebarMenuSubButton
+                                                    isActive={currentView === 'buyers'}
+                                                    onClick={() => onNavigate?.('buyers')}
+                                                >
+                                                    <Users size={14} />
+                                                    <span>Compradores</span>
+                                                </SidebarMenuSubButton>
+                                            </SidebarMenuSubItem>
+                                        </SidebarMenuSub>
+                                    </CollapsibleContent>
+                                </SidebarMenuItem>
+                            </Collapsible>
 
                             <SidebarMenuItem>
-                                <SidebarMenuButton tooltip="Community">
+                                <SidebarMenuButton tooltip="Comunidade">
                                     <BookOpen />
-                                    <span>Community</span>
+                                    <span>Comunidade</span>
                                 </SidebarMenuButton>
                             </SidebarMenuItem>
                         </SidebarMenu>
@@ -158,21 +172,20 @@ export function AppSidebar({ currentView = 'dashboard', onNavigate }: AppSidebar
 
                 <SidebarSeparator />
 
-                {/* Support */}
                 <SidebarGroup>
-                    <SidebarGroupLabel>Support</SidebarGroupLabel>
+                    <SidebarGroupLabel>Suporte</SidebarGroupLabel>
                     <SidebarGroupContent>
                         <SidebarMenu>
                             <SidebarMenuItem>
-                                <SidebarMenuButton tooltip="Settings">
+                                <SidebarMenuButton tooltip="Configuracoes">
                                     <Settings />
-                                    <span>Settings</span>
+                                    <span>Configuracoes</span>
                                 </SidebarMenuButton>
                             </SidebarMenuItem>
                             <SidebarMenuItem>
-                                <SidebarMenuButton tooltip="Help & FAQ">
+                                <SidebarMenuButton tooltip="Ajuda e FAQ">
                                     <HelpCircle />
-                                    <span>Help & FAQ</span>
+                                    <span>Ajuda e FAQ</span>
                                 </SidebarMenuButton>
                             </SidebarMenuItem>
                         </SidebarMenu>
@@ -181,7 +194,6 @@ export function AppSidebar({ currentView = 'dashboard', onNavigate }: AppSidebar
             </SidebarContent>
 
             <SidebarFooter>
-                {/* Upgrade Card */}
                 <div className="p-4 rounded-2xl bg-gradient-to-b from-sidebar-primary/20 to-transparent border border-sidebar-primary/20 flex items-center gap-3 relative overflow-hidden group/upgrade group-data-[collapsible=icon]:hidden">
                     <div className="absolute inset-0 bg-sidebar-primary/10 blur-xl group-hover/upgrade:bg-sidebar-primary/20 transition-colors"></div>
                     <div className="relative z-10 w-10 h-10 rounded-full bg-sidebar-accent flex items-center justify-center shrink-0 border border-sidebar-border">
@@ -192,20 +204,19 @@ export function AppSidebar({ currentView = 'dashboard', onNavigate }: AppSidebar
                         </svg>
                     </div>
                     <div className="relative z-10 text-left">
-                        <h4 className="font-bold text-sidebar-foreground text-sm">Upgrade</h4>
-                        <p className="text-xs text-sidebar-foreground/60 mt-0.5">Unlock all features</p>
+                        <h4 className="font-bold text-sidebar-foreground text-sm">Premium</h4>
+                        <p className="text-xs text-sidebar-foreground/60 mt-0.5">Desbloquear todos os recursos</p>
                     </div>
                 </div>
 
-                {/* Dark Mode Toggle */}
                 <SidebarMenu>
                     <SidebarMenuItem>
                         <SidebarMenuButton
-                            tooltip={theme === 'dark' ? 'Switch to Light' : 'Switch to Dark'}
+                            tooltip={theme === 'dark' ? 'Modo Claro' : 'Modo Escuro'}
                             onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
                         >
                             {theme === 'dark' ? <Sun /> : <Moon />}
-                            <span>{theme === 'dark' ? 'Light Mode' : 'Dark Mode'}</span>
+                            <span>{theme === 'dark' ? 'Modo Claro' : 'Modo Escuro'}</span>
                         </SidebarMenuButton>
                     </SidebarMenuItem>
                 </SidebarMenu>

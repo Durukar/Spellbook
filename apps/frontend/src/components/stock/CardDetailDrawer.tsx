@@ -23,11 +23,11 @@ import { useEditStockViewModel } from '@/viewmodels/useEditStockViewModel'
 const CONDITIONS: CardCondition[] = ['NM', 'SP', 'MP', 'HP', 'DMG']
 
 const CONDITION_LABELS: Record<CardCondition, string> = {
-    NM: 'Near Mint',
-    SP: 'Slightly Played',
-    MP: 'Moderately Played',
-    HP: 'Heavily Played',
-    DMG: 'Damaged',
+    NM: 'Perfeita',
+    SP: 'Levemente Jogada',
+    MP: 'Moderadamente Jogada',
+    HP: 'Muito Jogada',
+    DMG: 'Danificada',
 }
 
 const CONDITION_COLORS: Record<CardCondition, string> = {

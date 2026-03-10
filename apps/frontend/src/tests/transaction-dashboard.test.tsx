@@ -62,31 +62,31 @@ describe('TransactionDashboard', () => {
     it('shows loading state initially', () => {
         vi.mocked(scryfallService.getSets).mockReturnValue(new Promise(() => {}));
         render(<TransactionDashboard />);
-        expect(screen.getByText(/loading/i)).toBeDefined();
+        expect(screen.getByText(/carregando/i)).toBeDefined();
     });
 
     it('renders Collection Value label', async () => {
         vi.mocked(scryfallService.getSets).mockResolvedValue(mockSetsData);
         render(<TransactionDashboard />);
-        expect(screen.getByText('Collection Value')).toBeDefined();
+        expect(screen.getByText('Valor da Colecao')).toBeDefined();
     });
 
     it('renders My Collection section after data loads', async () => {
         vi.mocked(scryfallService.getSets).mockResolvedValue(mockSetsData);
         render(<TransactionDashboard />);
-        await waitFor(() => expect(screen.getByText('My Collection')).toBeDefined());
+        await waitFor(() => expect(screen.getByText('Minha Colecao')).toBeDefined());
     });
 
     it('renders Card Catalog section after data loads', async () => {
         vi.mocked(scryfallService.getSets).mockResolvedValue(mockSetsData);
         render(<TransactionDashboard />);
-        await waitFor(() => expect(screen.getByText('Card Catalog')).toBeDefined());
+        await waitFor(() => expect(screen.getByText('Catalogo de Cartas')).toBeDefined());
     });
 
     it('renders Recent Expansions section after data loads', async () => {
         vi.mocked(scryfallService.getSets).mockResolvedValue(mockSetsData);
         render(<TransactionDashboard />);
-        await waitFor(() => expect(screen.getByText('Recent Expansions')).toBeDefined());
+        await waitFor(() => expect(screen.getByText('Expansoes Recentes')).toBeDefined());
     });
 
     it('renders a set name from Scryfall data', async () => {
@@ -100,38 +100,38 @@ describe('TransactionDashboard', () => {
     it('renders Add Card button', () => {
         vi.mocked(scryfallService.getSets).mockResolvedValue(mockSetsData);
         render(<TransactionDashboard />);
-        expect(screen.getByRole('button', { name: /add card/i })).toBeDefined();
+        expect(screen.getByRole('button', { name: /adicionar carta/i })).toBeDefined();
     });
 
     it('shows error message when fetch fails', async () => {
         vi.mocked(scryfallService.getSets).mockRejectedValue(new Error('Network error'));
         render(<TransactionDashboard />);
-        await waitFor(() => expect(screen.getByText(/failed to load/i)).toBeDefined());
+        await waitFor(() => expect(screen.getByText(/falha/i)).toBeDefined());
     });
 
     it('renders the search input for cards', () => {
         vi.mocked(scryfallService.getSets).mockResolvedValue(mockSetsData);
         render(<TransactionDashboard />);
-        expect(screen.getByPlaceholderText(/search cards/i)).toBeDefined();
+        expect(screen.getByPlaceholderText(/buscar cartas/i)).toBeDefined();
     });
 
     it('renders Color Distribution label after data loads', async () => {
         vi.mocked(scryfallService.getSets).mockResolvedValue(mockSetsData);
         render(<TransactionDashboard />);
-        await waitFor(() => expect(screen.getByText('Color Distribution')).toBeDefined());
+        await waitFor(() => expect(screen.getByText('Distribuicao por Cor')).toBeDefined());
     });
 
     it('renders Start Collecting button', async () => {
         vi.mocked(scryfallService.getSets).mockResolvedValue(mockSetsData);
         render(<TransactionDashboard />);
-        expect(screen.getByRole('button', { name: /start collecting/i })).toBeDefined();
+        expect(screen.getByRole('button', { name: /comecar a colecionar/i })).toBeDefined();
     });
 
     it('renders Browse Now button in Card Scout section', async () => {
         vi.mocked(scryfallService.getSets).mockResolvedValue(mockSetsData);
         render(<TransactionDashboard />);
         await waitFor(() =>
-            expect(screen.getByRole('button', { name: /browse now/i })).toBeDefined(),
+            expect(screen.getByRole('button', { name: /explorar agora/i })).toBeDefined(),
         );
     });
 
@@ -139,7 +139,7 @@ describe('TransactionDashboard', () => {
         vi.mocked(scryfallService.getSets).mockResolvedValue(mockSetsData);
         render(<TransactionDashboard />);
         expect(
-            screen.getByText(/your magic: the gathering collection overview/i),
+            screen.getByText(/visao geral da sua colecao magic/i),
         ).toBeDefined();
     });
 });

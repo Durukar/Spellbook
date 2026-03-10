@@ -35,11 +35,11 @@ interface AddStockSheetProps {
 }
 
 const CONDITIONS: { value: CardCondition; label: string }[] = [
-    { value: 'NM', label: 'Near Mint' },
-    { value: 'SP', label: 'Slightly Played' },
-    { value: 'MP', label: 'Moderately Played' },
-    { value: 'HP', label: 'Heavily Played' },
-    { value: 'DMG', label: 'Damaged' },
+    { value: 'NM', label: 'Perfeita' },
+    { value: 'SP', label: 'Levemente Jogada' },
+    { value: 'MP', label: 'Moderadamente Jogada' },
+    { value: 'HP', label: 'Muito Jogada' },
+    { value: 'DMG', label: 'Danificada' },
 ];
 
 const CONDITION_COLORS: Record<CardCondition, string> = {

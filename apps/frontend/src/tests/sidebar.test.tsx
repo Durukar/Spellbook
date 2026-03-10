@@ -32,14 +32,14 @@ describe('AppSidebar', () => {
     it('renders navigation items', () => {
         renderSidebar();
         expect(screen.getByText('Dashboard')).toBeDefined();
-        expect(screen.getByText('Transactions')).toBeDefined();
-        expect(screen.getByText('Portfolio')).toBeDefined();
+        expect(screen.getByText('Transacoes')).toBeDefined();
+        expect(screen.getByText('Colecao')).toBeDefined();
     });
 
     it('renders the settings and help items', () => {
         renderSidebar();
-        expect(screen.getByText('Settings')).toBeDefined();
-        expect(screen.getByText('Help & FAQ')).toBeDefined();
+        expect(screen.getByText('Configuracoes')).toBeDefined();
+        expect(screen.getByText('Ajuda e FAQ')).toBeDefined();
     });
 
     it('renders the sidebar trigger button', () => {
@@ -54,32 +54,32 @@ describe('AppSidebar', () => {
         expect(trigger.className).not.toContain('group-data-[collapsible=icon]:hidden');
     });
 
-    it('renders the theme toggle button in dark mode with Light Mode text', () => {
+    it('renders the theme toggle button in dark mode with Modo Claro text', () => {
         renderSidebar('dark');
-        expect(screen.getByText('Light Mode')).toBeDefined();
+        expect(screen.getByText('Modo Claro')).toBeDefined();
     });
 
-    it('renders the theme toggle in light mode with Dark Mode text', () => {
+    it('renders the theme toggle in light mode with Modo Escuro text', () => {
         renderSidebar('light');
-        expect(screen.getByText('Dark Mode')).toBeDefined();
+        expect(screen.getByText('Modo Escuro')).toBeDefined();
     });
 
     it('toggles theme when theme button is clicked', async () => {
         const user = userEvent.setup();
         renderSidebar('dark');
 
-        const themeButton = screen.getByText('Light Mode').closest('button');
+        const themeButton = screen.getByText('Modo Claro').closest('button');
         expect(themeButton).not.toBeNull();
 
         await user.click(themeButton!);
 
-        expect(screen.getByText('Dark Mode')).toBeDefined();
+        expect(screen.getByText('Modo Escuro')).toBeDefined();
         expect(document.documentElement.classList.contains('light')).toBe(true);
     });
 
     it('does NOT render a ToggleRight switch icon in the theme button', () => {
         renderSidebar();
-        const themeButton = screen.getByText('Light Mode').closest('button');
+        const themeButton = screen.getByText('Modo Claro').closest('button');
         expect(themeButton).not.toBeNull();
         const svgs = themeButton!.querySelectorAll('svg');
         svgs.forEach((svg) => {

@@ -74,7 +74,7 @@ export function useDashboardViewModel() {
                     collectionValue: 0,
                 });
             } catch {
-                setError('Failed to load catalog data from Scryfall.');
+                setError('Falha ao carregar dados do catalogo Scryfall.');
             } finally {
                 setIsLoading(false);
             }

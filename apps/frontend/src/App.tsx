@@ -5,6 +5,7 @@ import { AppSidebar, type AppView } from './components/layout/Sidebar'
 import { TransactionDashboard } from './components/dashboard/TransactionDashboard'
 import { CardSearchView } from './components/cards/CardSearchView'
 import { StockListView } from './components/stock/StockListView'
+import { BuyersListView } from './components/buyers/BuyersListView'
 import { ThemeProvider } from '@/components/theme-provider'
 
 function App() {
@@ -20,6 +21,7 @@ function App() {
               {currentView === 'dashboard' && <TransactionDashboard />}
               {currentView === 'search' && <CardSearchView />}
               {currentView === 'allCards' && <StockListView />}
+              {currentView === 'buyers' && <BuyersListView />}
             </main>
           </div>
         </SidebarProvider>
