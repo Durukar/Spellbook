@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
     ShoppingCart, AlertTriangle, ChevronRight, ChevronLeft,
-    Check, X, Minus, Plus, User, FileText,
+    Check, X, Minus, Plus, User, FileText, ChevronDown,
 } from 'lucide-react'
 import {
     Sheet,
@@ -13,19 +13,88 @@ import {
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-} from '@/components/ui/select'
 import { apiService } from '@/services/apiService'
 import { useCreateSaleViewModel, type SaleLineItem } from '@/viewmodels/useCreateSaleViewModel'
 import type { BackendStockItem } from '@/types/stock'
 import type { BackendBuyer } from '@/types/buyer'
 import type { PaymentMethod } from '@/types/sale'
 import { FoilBadge } from '@/components/stock/FoilOverlay'
+
+
+function BuyerPicker({
+    buyers,
+    value,
+    onChange,
+}: {
+    buyers: BackendBuyer[]
+    value: string | null
+    onChange: (id: string | null) => void
+}) {
+    const [open, setOpen] = useState(false)
+
+    const selected = buyers.find((b) => b.id === value) ?? null
+
+    return (
+        <div className="relative">
+            <button
+                type="button"
+                onClick={() => setOpen((o) => !o)}
+                className={`w-full flex items-center gap-3 h-10 px-3 rounded-md border text-sm transition-colors ${
+                    open
+                        ? 'border-ring ring-2 ring-ring/30 bg-neutral-900'
+                        : 'border-input bg-neutral-900 hover:border-neutral-600'
+                }`}
+            >
+                {selected ? (
+                    <>
+                        <span className="flex-1 text-left text-text-primary truncate">{selected.name}</span>
+                        <button
+                            type="button"
+                            onClick={(e) => { e.stopPropagation(); onChange(null) }}
+                            className="text-neutral-500 hover:text-red-400 transition-colors"
+                        >
+                            <X size={13} />
+                        </button>
+                    </>
+                ) : (
+                    <>
+                        <span className="flex-1 text-left text-neutral-500">Selecionar comprador...</span>
+                        <ChevronDown size={14} className="text-neutral-500 shrink-0" />
+                    </>
+                )}
+            </button>
+
+            {open && (
+                <>
+                    <div className="fixed inset-0 z-40" onClick={() => setOpen(false)} />
+                    <div className="absolute top-full left-0 right-0 mt-1 z-50 rounded-md border border-neutral-700 bg-neutral-900 shadow-xl overflow-hidden">
+                        <div className="max-h-52 overflow-y-auto p-1">
+                            {buyers.length === 0 ? (
+                                <div className="py-4 text-center text-sm text-neutral-500">Nenhum comprador cadastrado</div>
+                            ) : (
+                                buyers.map((b) => (
+                                    <button
+                                        key={b.id}
+                                        type="button"
+                                        onClick={() => { onChange(b.id); setOpen(false) }}
+                                        className={`w-full flex items-center gap-2 px-2 py-2 rounded-sm text-sm transition-colors text-left ${
+                                            value === b.id
+                                                ? 'bg-accent/20 text-accent'
+                                                : 'text-neutral-100 hover:bg-neutral-800'
+                                        }`}
+                                    >
+                                        <span className="flex-1 truncate">{b.name}</span>
+                                        {value === b.id && <Check size={13} className="shrink-0" />}
+                                    </button>
+                                ))
+                            )}
+                        </div>
+                    </div>
+                </>
+            )}
+        </div>
+    )
+}
 
 const PAYMENT_METHODS: { value: PaymentMethod; label: string }[] = [
     { value: 'pix', label: 'PIX' },
@@ -331,21 +400,11 @@ export function CreateSaleSheet({ isOpen, onClose, onSuccess }: CreateSaleSheetP
                                 <User size={12} />
                                 Comprador (opcional)
                             </Label>
-                            <Select
-                                value={vm.buyerId ?? ''}
-                                onValueChange={(v) => vm.setBuyerId(v || null)}
-                            >
-                                <SelectTrigger className="h-10 bg-bg-elevated border-border-subtle text-text-primary">
-                                    <SelectValue placeholder="Selecionar comprador..." />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    {buyers.map((b) => (
-                                        <SelectItem key={b.id} value={b.id}>
-                                            {b.name}
-                                        </SelectItem>
-                                    ))}
-                                </SelectContent>
-                            </Select>
+                            <BuyerPicker
+                                buyers={buyers}
+                                value={vm.buyerId}
+                                onChange={vm.setBuyerId}
+                            />
                         </div>
 
                         <div className="space-y-2">
