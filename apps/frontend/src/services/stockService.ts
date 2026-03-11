@@ -11,7 +11,7 @@ class StockService {
             purchase_price: item.purchasePrice,
             condition: item.condition,
             quantity: item.quantity,
-            is_foil: item.isFoil,
+            is_foil: item.isFoil ?? false,
         })
 
         return {

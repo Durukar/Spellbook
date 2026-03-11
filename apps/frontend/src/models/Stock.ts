@@ -10,5 +10,5 @@ export interface StockItem {
     purchaseDate: string;
     condition: CardCondition;
     quantity: number;
-    isFoil: boolean;
+    isFoil?: boolean;
 }

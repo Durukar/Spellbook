@@ -231,6 +231,8 @@ export function TransactionDashboard() {
                                     )}
                                 </div>
 
+                                <h4 className="text-xs font-semibold text-text-secondary mb-1">Distribuicao por Cor</h4>
+                                <p className="text-xs text-text-muted mb-2">Em breve</p>
                                 <h4 className="text-xs font-semibold text-text-secondary mb-2">Distribuicao por Condicao</h4>
 
                                 {stats.conditionDistribution.length > 0 ? (
@@ -297,6 +299,9 @@ export function TransactionDashboard() {
                                         {stats.totalSets} colecoes
                                     </span>
                                     <span className="text-xs text-text-muted">em todos os lancamentos de Magic: The Gathering</span>
+                                    <Button variant="outline" className="rounded-lg border-border-subtle text-xs h-6 bg-bg-base text-text-secondary hover:text-text-primary gap-1 ml-auto">
+                                        Explorar Agora
+                                    </Button>
                                 </div>
 
                                 <div className="flex-1 min-h-0">

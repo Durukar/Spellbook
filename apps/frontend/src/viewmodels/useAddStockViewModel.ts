@@ -74,7 +74,7 @@ export function useAddStockViewModel(initialCard: ScryfallCard | null) {
                 purchasePrice: parseFloat(price) || 0,
                 condition,
                 quantity,
-                isFoil,
+                ...(isFoil ? { isFoil } : {}),
             });
 
             setIsLoading(false);
