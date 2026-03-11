@@ -114,7 +114,7 @@ export function BuyerDetailDrawer({ buyer, isOpen, onClose, onUpdate, onDelete }
                                     />
                                 ) : (
                                     <span className="text-sm font-semibold text-text-primary">
-                                        {buyer.phone}
+                                        {buyer.phone ?? '—'}
                                     </span>
                                 )}
                             </div>

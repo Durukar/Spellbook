@@ -6,8 +6,8 @@ export const buyerController = {
   async create(c: Context) {
     const body = await c.req.json<CreateBuyerDto>()
 
-    if (!body.name || !body.phone) {
-      return c.json({ error: 'Nome e telefone sao obrigatorios.' }, 400)
+    if (!body.name) {
+      return c.json({ error: 'Nome e obrigatorio.' }, 400)
     }
 
     const buyer = await buyerService.create(body)

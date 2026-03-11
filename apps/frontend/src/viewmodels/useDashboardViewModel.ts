@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
 import { scryfallService } from '@/services/scryfallService';
 import { apiService } from '@/services/apiService';
-import type { SaleStats } from '@/types/sale';
+import type { SaleStats, BackendSale } from '@/types/sale';
+import type { BackendStockItem } from '@/types/stock';
 
 export interface SetsByYear {
     year: string;
@@ -14,6 +15,13 @@ export interface ExpansionChartEntry {
     cards: number;
 }
 
+export interface ConditionDistribution {
+    condition: string;
+    count: number;
+    percentage: number;
+    color: string;
+}
+
 export interface DashboardStats {
     totalSets: number;
     totalCardsInCatalog: number;
@@ -22,7 +30,20 @@ export interface DashboardStats {
     setsByYear: SetsByYear[];
     collectionCount: number;
     collectionValue: number;
+    foilPercentage: number;
+    conditionDistribution: ConditionDistribution[];
+    topCards: BackendStockItem[];
+    buyersCount: number;
+    recentSales: BackendSale[];
 }
+
+const CONDITION_COLORS: Record<string, string> = {
+    NM: '#10b981',
+    SP: '#3b82f6',
+    MP: '#eab308',
+    HP: '#f97316',
+    DMG: '#ef4444',
+};
 
 export function useDashboardViewModel() {
     const [stats, setStats] = useState<DashboardStats | null>(null);
@@ -33,9 +54,12 @@ export function useDashboardViewModel() {
     useEffect(() => {
         async function load() {
             try {
-                const [setList, saleStatsData] = await Promise.allSettled([
+                const [setList, saleStatsData, stockData, salesData, buyersData] = await Promise.allSettled([
                     scryfallService.getSets(),
                     apiService.getSaleStats(),
+                    apiService.listStockItems(),
+                    apiService.listSales(),
+                    apiService.listBuyers(),
                 ]);
 
                 if (saleStatsData.status === 'fulfilled') {
@@ -69,15 +93,51 @@ export function useDashboardViewModel() {
                     .sort((a, b) => a.year.localeCompare(b.year))
                     .slice(-10);
 
-                const totalCardsInCatalog = allSets.reduce(
-                    (sum, s) => sum + s.card_count,
-                    0,
-                );
+                const totalCardsInCatalog = allSets.reduce((sum, s) => sum + s.card_count, 0);
 
                 const recentExpansionChartData: ExpansionChartEntry[] = recentExpansions.map((s) => ({
                     name: s.code.toUpperCase(),
                     cards: s.card_count,
                 }));
+
+                // Dados reais do estoque
+                const stockItems = stockData.status === 'fulfilled' ? stockData.value : [];
+                const collectionCount = stockItems.reduce((sum, item) => sum + item.quantity, 0);
+                const collectionValue = stockItems.reduce(
+                    (sum, item) => sum + item.purchase_price * item.quantity,
+                    0,
+                );
+                const foilCount = stockItems
+                    .filter((item) => item.is_foil)
+                    .reduce((sum, item) => sum + item.quantity, 0);
+                const foilPercentage =
+                    collectionCount > 0 ? Math.round((foilCount / collectionCount) * 100) : 0;
+
+                const conditionMap = new Map<string, number>();
+                stockItems.forEach((item) => {
+                    const current = conditionMap.get(item.condition) ?? 0;
+                    conditionMap.set(item.condition, current + item.quantity);
+                });
+                const conditionDistribution: ConditionDistribution[] = ['NM', 'SP', 'MP', 'HP', 'DMG']
+                    .filter((c) => conditionMap.has(c))
+                    .map((c) => ({
+                        condition: c,
+                        count: conditionMap.get(c)!,
+                        percentage:
+                            collectionCount > 0
+                                ? Math.round((conditionMap.get(c)! / collectionCount) * 100)
+                                : 0,
+                        color: CONDITION_COLORS[c] ?? '#6b7280',
+                    }));
+
+                const topCards = [...stockItems]
+                    .sort((a, b) => b.purchase_price - a.purchase_price)
+                    .slice(0, 5);
+
+                const buyersCount = buyersData.status === 'fulfilled' ? buyersData.value.length : 0;
+
+                const recentSales: BackendSale[] =
+                    salesData.status === 'fulfilled' ? salesData.value.slice(0, 6) : [];
 
                 setStats({
                     totalSets: allSets.length,
@@ -85,8 +145,13 @@ export function useDashboardViewModel() {
                     latestExpansionName: recentExpansions[0]?.name ?? 'N/A',
                     recentExpansionChartData,
                     setsByYear,
-                    collectionCount: 0,
-                    collectionValue: 0,
+                    collectionCount,
+                    collectionValue,
+                    foilPercentage,
+                    conditionDistribution,
+                    topCards,
+                    buyersCount,
+                    recentSales,
                 });
             } catch {
                 setError('Falha ao carregar dados do catalogo Scryfall.');

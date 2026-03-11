@@ -1,7 +1,7 @@
 export interface Buyer {
   id: string
   name: string
-  phone: string
+  phone: string | null
   instagram: string | null
   city: string | null
   notes: string | null
@@ -11,7 +11,7 @@ export interface Buyer {
 
 export interface CreateBuyerDto {
   name: string
-  phone: string
+  phone?: string
   instagram?: string
   city?: string
   notes?: string

@@ -8,11 +8,12 @@ import {
     Sliders,
     Camera,
     Maximize2,
-    BookOpen,
     Wallet,
     TrendingDown,
     ShoppingCart,
     Package,
+    Users,
+    Receipt,
 } from 'lucide-react';
 import {
     BarChart,
@@ -27,6 +28,25 @@ import {
 } from 'recharts';
 import { Button } from '../ui/button';
 import { useDashboardViewModel } from '@/viewmodels/useDashboardViewModel';
+import type { PaymentMethod } from '@/types/sale';
+
+const PAYMENT_META: Record<PaymentMethod, { label: string; className: string }> = {
+    pix: { label: 'PIX', className: 'bg-emerald-500/15 text-emerald-400' },
+    dinheiro: { label: 'Dinheiro', className: 'bg-green-500/15 text-green-400' },
+    fiado: { label: 'Fiado', className: 'bg-orange-500/15 text-orange-400' },
+    cartao: { label: 'Cartao', className: 'bg-blue-500/15 text-blue-400' },
+    troca: { label: 'Troca', className: 'bg-purple-500/15 text-purple-400' },
+};
+
+function formatSaleDate(dateStr: string): string {
+    const date = new Date(dateStr);
+    const today = new Date();
+    const diffMs = today.getTime() - date.getTime();
+    const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+    if (diffDays === 0) return 'Hoje';
+    if (diffDays === 1) return 'Ontem';
+    return date.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' });
+}
 
 function GridLoading() {
     return (
@@ -86,7 +106,7 @@ export function TransactionDashboard() {
                                 <path d="M12 12h.01"></path>
                             </svg>
                             <span className="font-bold text-text-primary text-sm">
-                                ${(stats?.collectionValue ?? 0).toFixed(2)}
+                                {(stats?.collectionValue ?? 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
                             </span>
                         </div>
                     </div>
@@ -144,8 +164,8 @@ export function TransactionDashboard() {
                     </div>
                 </div>
 
-                {saleStats && (
-                    <div className="grid grid-cols-5 gap-3 mb-4 shrink-0">
+                {!isLoading && stats && saleStats && (
+                    <div className="grid grid-cols-6 gap-3 mb-4 shrink-0">
                         <FinancialCard
                             label="Patrimonio em Estoque"
                             value={saleStats.stock_value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
@@ -153,20 +173,20 @@ export function TransactionDashboard() {
                             color="bg-sky-500/15 text-sky-400"
                         />
                         <FinancialCard
-                            label="Receita do Mes"
-                            value={saleStats.monthly_revenue.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
+                            label="Receita Total"
+                            value={saleStats.total_revenue.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
                             icon={Wallet}
                             color="bg-emerald-500/15 text-emerald-400"
                         />
                         <FinancialCard
-                            label="Lucro do Mes"
-                            value={saleStats.monthly_profit.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
-                            icon={saleStats.monthly_profit >= 0 ? TrendingUp : TrendingDown}
-                            color={saleStats.monthly_profit >= 0 ? 'bg-emerald-500/15 text-emerald-400' : 'bg-red-500/15 text-red-400'}
+                            label="Lucro Total"
+                            value={saleStats.total_profit.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
+                            icon={saleStats.total_profit >= 0 ? TrendingUp : TrendingDown}
+                            color={saleStats.total_profit >= 0 ? 'bg-emerald-500/15 text-emerald-400' : 'bg-red-500/15 text-red-400'}
                         />
                         <FinancialCard
-                            label="Desconto Concedido"
-                            value={saleStats.monthly_discount.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
+                            label="Desconto Total"
+                            value={saleStats.total_discount.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
                             icon={TrendingDown}
                             color="bg-yellow-500/15 text-yellow-400"
                         />
@@ -176,6 +196,12 @@ export function TransactionDashboard() {
                             icon={ShoppingCart}
                             color="bg-purple-500/15 text-purple-400"
                         />
+                        <FinancialCard
+                            label="Compradores"
+                            value={String(stats.buyersCount)}
+                            icon={Users}
+                            color="bg-pink-500/15 text-pink-400"
+                        />
                     </div>
                 )}
 
@@ -184,38 +210,62 @@ export function TransactionDashboard() {
                     {!isLoading && error && <GridError message={error} />}
                     {!isLoading && !error && stats && (
                         <>
+                            {/* Minha Colecao */}
                             <div className="col-span-4 row-span-1 bg-bg-card border border-border-subtle rounded-2xl p-5 flex flex-col">
                                 <div className="flex items-center gap-1.5 mb-3">
                                     <h3 className="text-sm font-semibold text-text-secondary">Minha Colecao</h3>
                                     <Info size={12} className="text-text-muted" />
                                 </div>
-                                <div className="text-3xl font-bold text-text-primary mb-2">
-                                    {stats.collectionCount}
+                                <div className="text-3xl font-bold text-text-primary mb-1">
+                                    {stats.collectionCount.toLocaleString()}
                                     <span className="text-text-muted text-lg ml-1">cartas</span>
                                 </div>
-                                <div className="flex items-center gap-2 mb-5">
+                                <div className="flex items-center gap-2 mb-4">
                                     <span className="text-xs font-bold text-text-muted bg-bg-base px-1.5 py-0.5 rounded">
-                                        R$ 0,00 valor total
+                                        {stats.collectionValue.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })} valor total
                                     </span>
+                                    {stats.foilPercentage > 0 && (
+                                        <span className="text-xs font-bold text-yellow-400 bg-yellow-400/10 px-1.5 py-0.5 rounded">
+                                            {stats.foilPercentage}% Foil
+                                        </span>
+                                    )}
                                 </div>
 
-                                <h4 className="text-sm font-bold text-text-primary mb-2">Distribuicao por Cor</h4>
-                                <div className="flex h-3 rounded-full overflow-hidden mb-4 bg-bg-base">
-                                    <div className="bg-yellow-400 h-full" style={{ width: '0%' }}></div>
-                                    <div className="bg-blue-400 h-full" style={{ width: '0%' }}></div>
-                                    <div className="bg-zinc-700 h-full" style={{ width: '0%' }}></div>
-                                    <div className="bg-red-500 h-full" style={{ width: '0%' }}></div>
-                                    <div className="bg-green-500 h-full" style={{ width: '0%' }}></div>
-                                </div>
+                                <h4 className="text-xs font-semibold text-text-secondary mb-2">Distribuicao por Condicao</h4>
 
-                                <div className="mt-auto flex flex-col items-center justify-center gap-2 text-center py-2">
-                                    <p className="text-xs text-text-muted">Sua colecao esta vazia.</p>
-                                    <Button variant="outline" className="rounded-lg border-border-subtle text-xs h-7 bg-bg-base text-text-secondary hover:text-text-primary gap-1">
-                                        <Plus size={12} /> Adicionar primeira carta
-                                    </Button>
-                                </div>
+                                {stats.conditionDistribution.length > 0 ? (
+                                    <>
+                                        <div className="flex h-3 rounded-full overflow-hidden mb-2 bg-bg-base">
+                                            {stats.conditionDistribution.map((c) => (
+                                                <div
+                                                    key={c.condition}
+                                                    className="h-full transition-all"
+                                                    style={{ width: `${c.percentage}%`, backgroundColor: c.color }}
+                                                    title={`${c.condition}: ${c.percentage}%`}
+                                                />
+                                            ))}
+                                        </div>
+                                        <div className="flex flex-wrap gap-x-3 gap-y-1">
+                                            {stats.conditionDistribution.map((c) => (
+                                                <span key={c.condition} className="flex items-center gap-1 text-xs text-text-muted">
+                                                    <span className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: c.color }} />
+                                                    {c.condition}
+                                                    <span className="text-text-secondary">{c.percentage}%</span>
+                                                </span>
+                                            ))}
+                                        </div>
+                                    </>
+                                ) : (
+                                    <div className="mt-auto flex flex-col items-center justify-center gap-2 text-center py-2">
+                                        <p className="text-xs text-text-muted">Sua colecao esta vazia.</p>
+                                        <Button variant="outline" className="rounded-lg border-border-subtle text-xs h-7 bg-bg-base text-text-secondary hover:text-text-primary gap-1">
+                                            <Plus size={12} /> Adicionar primeira carta
+                                        </Button>
+                                    </div>
+                                )}
                             </div>
 
+                            {/* Catalogo de Cartas */}
                             <div className="col-span-8 row-span-1 bg-bg-card border border-border-subtle rounded-2xl p-5 flex flex-col">
                                 <div className="flex items-center justify-between mb-1">
                                     <div className="flex items-center gap-1.5">
@@ -268,6 +318,7 @@ export function TransactionDashboard() {
                                 </div>
                             </div>
 
+                            {/* Expansoes Recentes */}
                             <div className="col-span-7 row-span-1 bg-bg-card border border-border-subtle rounded-2xl p-5 flex flex-col">
                                 <div className="flex items-center justify-between mb-1">
                                     <div className="flex items-center gap-1.5">
@@ -296,28 +347,58 @@ export function TransactionDashboard() {
                                 </div>
                             </div>
 
-                            <div className="col-span-5 row-span-1 bg-gradient-to-br from-brand-600/30 via-bg-card to-brand-900/20 border border-brand-500/20 rounded-2xl p-6 flex flex-col items-center justify-center text-center relative overflow-hidden">
-                                <div className="absolute inset-0 bg-brand-500/5 backdrop-blur-sm"></div>
-                                <div className="absolute top-4 right-4 opacity-10">
-                                    <div className="grid grid-cols-4 gap-1">
-                                        {Array.from({ length: 16 }).map((_, i) => (
-                                            <div key={i} className="w-1.5 h-1.5 rounded-sm bg-white"></div>
-                                        ))}
+                            {/* Vendas Recentes */}
+                            <div className="col-span-5 row-span-1 bg-bg-card border border-border-subtle rounded-2xl p-5 flex flex-col">
+                                <div className="flex items-center justify-between mb-3">
+                                    <div className="flex items-center gap-1.5">
+                                        <h3 className="text-sm font-semibold text-text-secondary">Vendas Recentes</h3>
+                                        <Info size={12} className="text-text-muted" />
                                     </div>
+                                    {stats.recentSales.length > 0 && (
+                                        <span className="text-xs text-text-muted bg-bg-base px-2 py-0.5 rounded-full border border-border-subtle">
+                                            {stats.recentSales.length} vendas
+                                        </span>
+                                    )}
                                 </div>
-                                <div className="relative z-10 flex flex-col items-center">
-                                    <div className="w-14 h-14 rounded-2xl bg-brand-500/20 border border-brand-500/30 flex items-center justify-center mb-4">
-                                        <BookOpen size={28} className="text-brand-400" />
+
+                                {stats.recentSales.length === 0 ? (
+                                    <div className="flex-1 flex flex-col items-center justify-center gap-2 text-center">
+                                        <div className="w-10 h-10 rounded-xl bg-bg-base border border-border-subtle flex items-center justify-center">
+                                            <Receipt size={20} className="text-text-muted" />
+                                        </div>
+                                        <p className="text-xs text-text-muted">Nenhuma venda registrada ainda.</p>
                                     </div>
-                                    <h3 className="text-lg font-bold text-text-primary mb-1">Explore o Catalogo</h3>
-                                    <h3 className="text-lg font-bold text-text-primary mb-2">Completo do Scryfall</h3>
-                                    <p className="text-xs text-text-secondary mb-4 max-w-[240px]">
-                                        Pesquise milhoes de cartas, acompanhe precos e descubra novas adicoes para sua colecao.
-                                    </p>
-                                    <Button className="bg-brand-500 hover:bg-brand-400 text-white rounded-xl px-6 h-9 text-sm font-semibold shadow-lg shadow-brand-500/20">
-                                        Explorar Agora
-                                    </Button>
-                                </div>
+                                ) : (
+                                    <div className="flex-1 flex flex-col gap-1 overflow-auto min-h-0">
+                                        {stats.recentSales.map((sale) => {
+                                            const meta = PAYMENT_META[sale.payment_method];
+                                            return (
+                                                <div
+                                                    key={sale.id}
+                                                    className="flex items-center gap-3 py-2 border-b border-border-subtle/40 last:border-0"
+                                                >
+                                                    <div className="flex-1 min-w-0">
+                                                        <p className="text-xs font-medium text-text-primary truncate">
+                                                            {sale.buyer_name ?? 'Venda Direta'}
+                                                        </p>
+                                                        <p className="text-[10px] text-text-muted">
+                                                            {sale.items.length} {sale.items.length === 1 ? 'item' : 'itens'}
+                                                        </p>
+                                                    </div>
+                                                    <span className={`text-[10px] font-medium px-1.5 py-0.5 rounded shrink-0 ${meta.className}`}>
+                                                        {meta.label}
+                                                    </span>
+                                                    <div className="text-right shrink-0">
+                                                        <p className="text-xs font-bold text-text-primary">
+                                                            {sale.total_amount.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
+                                                        </p>
+                                                        <p className="text-[10px] text-text-muted">{formatSaleDate(sale.created_at)}</p>
+                                                    </div>
+                                                </div>
+                                            );
+                                        })}
+                                    </div>
+                                )}
                             </div>
                         </>
                     )}

@@ -7,7 +7,7 @@ export const buyerService = {
       `INSERT INTO buyers (name, phone, instagram, city, notes)
        VALUES ($1, $2, $3, $4, $5)
        RETURNING *`,
-      [dto.name, dto.phone, dto.instagram ?? null, dto.city ?? null, dto.notes ?? null]
+      [dto.name, dto.phone ?? null, dto.instagram ?? null, dto.city ?? null, dto.notes ?? null]
     )
     return result.rows[0]
   },

@@ -80,7 +80,7 @@ export function AddBuyerSheet({ isOpen, onClose, onSuccess }: AddBuyerSheetProps
 
                         <div className="flex flex-col gap-2">
                             <Label htmlFor="buyer-phone" className="text-xs font-semibold text-text-muted uppercase tracking-wider">
-                                Telefone / WhatsApp <span className="text-red-400">*</span>
+                                Telefone / WhatsApp
                             </Label>
                             <Input
                                 id="buyer-phone"

@@ -33,8 +33,8 @@ export function useAddBuyerViewModel() {
     }
 
     const saveBuyer = async (onSuccess: (created: BackendBuyer) => void) => {
-        if (!form.name.trim() || !form.phone.trim()) {
-            setError('Nome e telefone sao obrigatorios.')
+        if (!form.name.trim()) {
+            setError('Nome e obrigatorio.')
             return
         }
 
@@ -43,7 +43,7 @@ export function useAddBuyerViewModel() {
         try {
             const payload: CreateBuyerPayload = {
                 name: form.name.trim(),
-                phone: form.phone.trim(),
+                phone: form.phone.trim() || undefined,
                 instagram: form.instagram.trim() || undefined,
                 city: form.city.trim() || undefined,
                 notes: form.notes.trim() || undefined,
