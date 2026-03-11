@@ -9,6 +9,10 @@ import {
     Camera,
     Maximize2,
     BookOpen,
+    Wallet,
+    TrendingDown,
+    ShoppingCart,
+    Package,
 } from 'lucide-react';
 import {
     BarChart,
@@ -42,8 +46,32 @@ function GridError({ message }: { message: string }) {
     );
 }
 
+function FinancialCard({
+    label,
+    value,
+    icon: Icon,
+    color,
+}: {
+    label: string
+    value: string
+    icon: React.ElementType
+    color: string
+}) {
+    return (
+        <div className="bg-bg-card border border-border-subtle rounded-xl px-4 py-3 flex items-center gap-3">
+            <div className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${color}`}>
+                <Icon size={15} />
+            </div>
+            <div className="min-w-0">
+                <p className="text-xs text-text-muted truncate">{label}</p>
+                <p className="text-sm font-bold text-text-primary truncate">{value}</p>
+            </div>
+        </div>
+    )
+}
+
 export function TransactionDashboard() {
-    const { stats, isLoading, error } = useDashboardViewModel();
+    const { stats, saleStats, isLoading, error } = useDashboardViewModel();
 
     return (
         <div className="w-full h-screen bg-bg-base text-text-primary flex flex-col overflow-hidden selection:bg-brand-500/30">
@@ -115,6 +143,41 @@ export function TransactionDashboard() {
                         </Button>
                     </div>
                 </div>
+
+                {saleStats && (
+                    <div className="grid grid-cols-5 gap-3 mb-4 shrink-0">
+                        <FinancialCard
+                            label="Patrimonio em Estoque"
+                            value={saleStats.stock_value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
+                            icon={Package}
+                            color="bg-sky-500/15 text-sky-400"
+                        />
+                        <FinancialCard
+                            label="Receita do Mes"
+                            value={saleStats.monthly_revenue.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
+                            icon={Wallet}
+                            color="bg-emerald-500/15 text-emerald-400"
+                        />
+                        <FinancialCard
+                            label="Lucro do Mes"
+                            value={saleStats.monthly_profit.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
+                            icon={saleStats.monthly_profit >= 0 ? TrendingUp : TrendingDown}
+                            color={saleStats.monthly_profit >= 0 ? 'bg-emerald-500/15 text-emerald-400' : 'bg-red-500/15 text-red-400'}
+                        />
+                        <FinancialCard
+                            label="Desconto Concedido"
+                            value={saleStats.monthly_discount.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
+                            icon={TrendingDown}
+                            color="bg-yellow-500/15 text-yellow-400"
+                        />
+                        <FinancialCard
+                            label="Vendas Realizadas"
+                            value={String(saleStats.sales_count)}
+                            icon={ShoppingCart}
+                            color="bg-purple-500/15 text-purple-400"
+                        />
+                    </div>
+                )}
 
                 <div className="flex-1 grid grid-cols-12 grid-rows-2 gap-4 min-h-0">
                     {isLoading && <GridLoading />}

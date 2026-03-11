@@ -6,6 +6,8 @@ import { TransactionDashboard } from './components/dashboard/TransactionDashboar
 import { CardSearchView } from './components/cards/CardSearchView'
 import { StockListView } from './components/stock/StockListView'
 import { BuyersListView } from './components/buyers/BuyersListView'
+import { SalesListView } from './components/sales/SalesListView'
+import { TradeAnalyzerView } from './components/trade/TradeAnalyzerView'
 import { ThemeProvider } from '@/components/theme-provider'
 
 function App() {
@@ -22,6 +24,8 @@ function App() {
               {currentView === 'search' && <CardSearchView />}
               {currentView === 'allCards' && <StockListView />}
               {currentView === 'buyers' && <BuyersListView />}
+              {currentView === 'sales' && <SalesListView />}
+              {currentView === 'trade' && <TradeAnalyzerView />}
             </main>
           </div>
         </SidebarProvider>

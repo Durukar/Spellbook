@@ -1,5 +1,7 @@
 import { useState, useEffect } from 'react';
 import { scryfallService } from '@/services/scryfallService';
+import { apiService } from '@/services/apiService';
+import type { SaleStats } from '@/types/sale';
 
 export interface SetsByYear {
     year: string;
@@ -24,14 +26,27 @@ export interface DashboardStats {
 
 export function useDashboardViewModel() {
     const [stats, setStats] = useState<DashboardStats | null>(null);
+    const [saleStats, setSaleStats] = useState<SaleStats | null>(null);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
     useEffect(() => {
         async function load() {
             try {
-                const setList = await scryfallService.getSets();
-                const allSets = setList.data;
+                const [setList, saleStatsData] = await Promise.allSettled([
+                    scryfallService.getSets(),
+                    apiService.getSaleStats(),
+                ]);
+
+                if (saleStatsData.status === 'fulfilled') {
+                    setSaleStats(saleStatsData.value);
+                }
+
+                if (setList.status === 'rejected') {
+                    throw new Error('Falha ao carregar dados do catalogo Scryfall.');
+                }
+
+                const allSets = setList.value.data;
 
                 const recentExpansions = allSets
                     .filter((s) => !s.digital && s.set_type === 'expansion')
@@ -83,5 +98,5 @@ export function useDashboardViewModel() {
         load();
     }, []);
 
-    return { stats, isLoading, error };
+    return { stats, saleStats, isLoading, error };
 }

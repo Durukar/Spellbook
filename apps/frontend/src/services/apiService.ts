@@ -1,6 +1,7 @@
 import type { ScryfallCardList } from '@/types/scryfall'
 import type { BackendStockItem, CreateStockItemPayload, UpdateStockItemPayload } from '@/types/stock'
 import type { BackendBuyer, CreateBuyerPayload, UpdateBuyerPayload } from '@/types/buyer'
+import type { BackendSale, CreateSalePayload, SaleStats } from '@/types/sale'
 
 const API_URL = import.meta.env.VITE_API_URL ?? 'http://localhost:8787'
 
@@ -74,5 +75,25 @@ export const apiService = {
     async deleteBuyer(id: string): Promise<void> {
         const res = await fetch(`${API_URL}/api/v1/buyers/${id}`, { method: 'DELETE' })
         if (!res.ok) throw new Error(`API error: ${res.status}`)
+    },
+
+    createSale(payload: CreateSalePayload): Promise<BackendSale> {
+        return request<BackendSale>('/api/v1/sales', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload),
+        })
+    },
+
+    listSales(): Promise<BackendSale[]> {
+        return request<BackendSale[]>('/api/v1/sales')
+    },
+
+    getSaleById(id: string): Promise<BackendSale> {
+        return request<BackendSale>(`/api/v1/sales/${id}`)
+    },
+
+    getSaleStats(): Promise<SaleStats> {
+        return request<SaleStats>('/api/v1/sales/stats')
     },
 }

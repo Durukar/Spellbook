@@ -10,6 +10,8 @@ import {
     ChevronDown,
     Search,
     Users,
+    ShoppingCart,
+    ArrowLeftRight,
 } from 'lucide-react';
 import {
     Sidebar,
@@ -35,7 +37,7 @@ import {
 } from '@/components/ui/collapsible';
 import { useTheme } from '@/components/theme-provider';
 
-export type AppView = 'dashboard' | 'search' | 'allCards' | 'buyers';
+export type AppView = 'dashboard' | 'search' | 'allCards' | 'buyers' | 'sales' | 'trade';
 
 interface AppSidebarProps {
     currentView?: AppView;
@@ -148,11 +150,29 @@ export function AppSidebar({ currentView = 'dashboard', onNavigate }: AppSidebar
                                         <SidebarMenuSub>
                                             <SidebarMenuSubItem>
                                                 <SidebarMenuSubButton
+                                                    isActive={currentView === 'sales'}
+                                                    onClick={() => onNavigate?.('sales')}
+                                                >
+                                                    <ShoppingCart size={14} />
+                                                    <span>Registro de Vendas</span>
+                                                </SidebarMenuSubButton>
+                                            </SidebarMenuSubItem>
+                                            <SidebarMenuSubItem>
+                                                <SidebarMenuSubButton
                                                     isActive={currentView === 'buyers'}
                                                     onClick={() => onNavigate?.('buyers')}
                                                 >
                                                     <Users size={14} />
                                                     <span>Compradores</span>
+                                                </SidebarMenuSubButton>
+                                            </SidebarMenuSubItem>
+                                            <SidebarMenuSubItem>
+                                                <SidebarMenuSubButton
+                                                    isActive={currentView === 'trade'}
+                                                    onClick={() => onNavigate?.('trade')}
+                                                >
+                                                    <ArrowLeftRight size={14} />
+                                                    <span>Trade Analyzer</span>
                                                 </SidebarMenuSubButton>
                                             </SidebarMenuSubItem>
                                         </SidebarMenuSub>
