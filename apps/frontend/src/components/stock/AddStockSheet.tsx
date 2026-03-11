@@ -143,7 +143,7 @@ export function AddStockSheet({ card, isOpen, onClose, onSuccess }: AddStockShee
                                             : 'Selecione a edição'}
                                     </SelectValue>
                                 </SelectTrigger>
-                                <SelectContent className="w-auto min-w-max">
+                                <SelectContent position="item-aligned" className="min-w-max">
                                     {vm.printings.map((p) => {
                                         const pImageUrl =
                                             p.image_uris?.normal ?? p.card_faces?.[0]?.image_uris?.normal;
