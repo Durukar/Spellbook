@@ -70,7 +70,7 @@ export function AppSidebar({ currentView = 'dashboard', onNavigate }: AppSidebar
                 <SidebarGroup>
                     <SidebarGroupLabel>Navegacao</SidebarGroupLabel>
                     <SidebarGroupContent>
-                        <SidebarMenu>
+                        <SidebarMenu className="gap-0.5">
                             <SidebarMenuItem>
                                 <SidebarMenuButton
                                     isActive={currentView === 'dashboard'}

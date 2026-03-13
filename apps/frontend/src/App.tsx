@@ -20,7 +20,7 @@ function App() {
           <div className="flex bg-bg-base h-screen text-text-primary overflow-hidden w-full">
             <AppSidebar currentView={currentView} onNavigate={setCurrentView} />
             <main className="flex-1 w-full bg-bg-base overflow-hidden">
-              {currentView === 'dashboard' && <TransactionDashboard />}
+              {currentView === 'dashboard' && <TransactionDashboard onNavigate={setCurrentView} />}
               {currentView === 'search' && <CardSearchView />}
               {currentView === 'allCards' && <StockListView />}
               {currentView === 'buyers' && <BuyersListView />}

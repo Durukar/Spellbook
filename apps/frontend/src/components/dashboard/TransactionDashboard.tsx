@@ -29,6 +29,7 @@ import {
 import { Button } from '../ui/button';
 import { useDashboardViewModel } from '@/viewmodels/useDashboardViewModel';
 import type { PaymentMethod } from '@/types/sale';
+import type { AppView } from '@/components/layout/Sidebar';
 
 const PAYMENT_META: Record<PaymentMethod, { label: string; className: string }> = {
     pix: { label: 'PIX', className: 'bg-emerald-500/15 text-emerald-400' },
@@ -90,8 +91,12 @@ function FinancialCard({
     )
 }
 
-export function TransactionDashboard() {
-    const { stats, saleStats, isLoading, error } = useDashboardViewModel();
+interface TransactionDashboardProps {
+    onNavigate?: (view: AppView) => void;
+}
+
+export function TransactionDashboard({ onNavigate }: TransactionDashboardProps) {
+    const { stats, saleStats, isLoading, error, refresh } = useDashboardViewModel();
 
     return (
         <div className="w-full h-screen bg-bg-base text-text-primary flex flex-col overflow-hidden selection:bg-brand-500/30">
@@ -111,26 +116,35 @@ export function TransactionDashboard() {
                         </div>
                     </div>
                     <div className="flex items-center gap-2">
-                        <button className="w-9 h-9 rounded-xl bg-brand-500 text-white flex items-center justify-center hover:bg-brand-400 transition-colors shadow-lg shadow-brand-500/20">
+                        <button
+                            onClick={() => onNavigate?.('search')}
+                            className="w-9 h-9 rounded-xl bg-brand-500 text-white flex items-center justify-center hover:bg-brand-400 transition-colors shadow-lg shadow-brand-500/20"
+                            title="Buscar carta para adicionar ao estoque"
+                        >
                             <Plus size={16} />
                         </button>
-                        <button className="w-9 h-9 rounded-xl bg-bg-card text-text-primary flex items-center justify-center hover:bg-border-subtle transition-colors border border-border-subtle">
+                        <button
+                            onClick={refresh}
+                            className="w-9 h-9 rounded-xl bg-bg-card text-text-primary flex items-center justify-center hover:bg-border-subtle transition-colors border border-border-subtle"
+                            title="Atualizar dados"
+                        >
                             <RefreshCw size={14} />
                         </button>
                     </div>
                 </div>
                 <div className="flex items-center gap-3 text-sm">
-                    <div className="relative w-56">
+                    <button
+                        className="relative w-56 text-left"
+                        onClick={() => onNavigate?.('search')}
+                    >
                         <Search className="absolute left-3 top-2 text-text-muted" size={14} />
-                        <input
-                            type="text"
-                            placeholder="Buscar cartas..."
-                            className="w-full bg-bg-card border border-border-subtle rounded-xl py-1.5 pl-9 pr-12 focus:outline-none focus:border-border-highlight transition-colors text-text-primary placeholder-text-muted text-sm"
-                        />
+                        <div className="w-full bg-bg-card border border-border-subtle rounded-xl py-1.5 pl-9 pr-12 text-text-muted text-sm hover:border-border-highlight transition-colors">
+                            Buscar cartas...
+                        </div>
                         <div className="absolute right-2 top-1.5 flex items-center gap-1 border border-border-highlight rounded px-1.5 py-0.5 bg-bg-sidebar">
                             <span className="text-[10px] text-text-secondary">&#8984; K</span>
                         </div>
-                    </div>
+                    </button>
                     <button className="w-9 h-9 rounded-xl bg-bg-card border border-border-subtle flex items-center justify-center text-text-secondary hover:text-text-primary transition-colors relative">
                         <Bell size={16} />
                         <span className="absolute top-2 right-2.5 w-1.5 h-1.5 rounded-full bg-red-400"></span>
@@ -152,14 +166,21 @@ export function TransactionDashboard() {
                         </p>
                     </div>
                     <div className="flex items-center gap-2">
-                        <Button variant="outline" className="rounded-lg border-border-subtle text-xs font-medium h-8 bg-bg-card text-text-secondary hover:text-text-primary gap-1.5">
-                            <Plus size={14} /> Adicionar Carta
+                        <Button
+                            variant="outline"
+                            className="rounded-lg border-border-subtle text-xs font-medium h-8 bg-bg-card text-text-secondary hover:text-text-primary gap-1.5"
+                            onClick={() => onNavigate?.('allCards')}
+                        >
+                            <Package size={14} /> Ver Estoque
                         </Button>
                         <Button variant="outline" className="rounded-lg border-border-subtle text-xs font-medium h-8 bg-bg-card text-text-secondary hover:text-text-primary gap-1.5">
                             <Sliders size={14} /> Todos os Tempos
                         </Button>
-                        <Button className="rounded-lg text-xs font-medium h-8 bg-brand-500 hover:bg-brand-400 text-white">
-                            Comecar a Colecionar
+                        <Button
+                            className="rounded-lg text-xs font-medium h-8 bg-brand-500 hover:bg-brand-400 text-white gap-1.5"
+                            onClick={() => onNavigate?.('sales')}
+                        >
+                            <ShoppingCart size={14} /> Nova Venda
                         </Button>
                     </div>
                 </div>
@@ -260,7 +281,11 @@ export function TransactionDashboard() {
                                 ) : (
                                     <div className="mt-auto flex flex-col items-center justify-center gap-2 text-center py-2">
                                         <p className="text-xs text-text-muted">Sua colecao esta vazia.</p>
-                                        <Button variant="outline" className="rounded-lg border-border-subtle text-xs h-7 bg-bg-base text-text-secondary hover:text-text-primary gap-1">
+                                        <Button
+                                            variant="outline"
+                                            className="rounded-lg border-border-subtle text-xs h-7 bg-bg-base text-text-secondary hover:text-text-primary gap-1"
+                                            onClick={() => onNavigate?.('search')}
+                                        >
                                             <Plus size={12} /> Adicionar primeira carta
                                         </Button>
                                     </div>
@@ -299,7 +324,11 @@ export function TransactionDashboard() {
                                         {stats.totalSets} colecoes
                                     </span>
                                     <span className="text-xs text-text-muted">em todos os lancamentos de Magic: The Gathering</span>
-                                    <Button variant="outline" className="rounded-lg border-border-subtle text-xs h-6 bg-bg-base text-text-secondary hover:text-text-primary gap-1 ml-auto">
+                                    <Button
+                                        variant="outline"
+                                        className="rounded-lg border-border-subtle text-xs h-6 bg-bg-base text-text-secondary hover:text-text-primary gap-1 ml-auto"
+                                        onClick={() => onNavigate?.('search')}
+                                    >
                                         Explorar Agora
                                     </Button>
                                 </div>

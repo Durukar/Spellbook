@@ -50,6 +50,9 @@ export function useDashboardViewModel() {
     const [saleStats, setSaleStats] = useState<SaleStats | null>(null);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
+    const [refreshKey, setRefreshKey] = useState(0);
+
+    const refresh = () => setRefreshKey((k) => k + 1);
 
     useEffect(() => {
         async function load() {
@@ -161,7 +164,7 @@ export function useDashboardViewModel() {
         }
 
         load();
-    }, []);
+    }, [refreshKey]);
 
-    return { stats, saleStats, isLoading, error };
+    return { stats, saleStats, isLoading, error, refresh };
 }
