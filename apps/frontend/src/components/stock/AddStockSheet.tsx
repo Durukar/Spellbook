@@ -15,12 +15,6 @@ import {
     SelectTrigger,
     SelectValue,
 } from '@/components/ui/select';
-import {
-    HoverCard,
-    HoverCardTrigger,
-    HoverCardContent,
-} from '@/components/ui/hover-card';
-
 import { AlertCircle, DollarSign, Hash, Check } from 'lucide-react';
 import type { ScryfallCard } from '@/types/scryfall';
 import type { CardCondition } from '@/models/Stock';
@@ -57,7 +51,7 @@ export function AddStockSheet({ card, isOpen, onClose, onSuccess }: AddStockShee
     if (!card) return null;
 
     const displayCard = hoveredPrintingId
-        ? vm.printings.find(p => p.id === hoveredPrintingId) || vm.selectedCard
+        ? (vm.printings.find(p => p.id === hoveredPrintingId) ?? vm.selectedCard)
         : vm.selectedCard;
 
     const imageUrl =
@@ -129,9 +123,7 @@ export function AddStockSheet({ card, isOpen, onClose, onSuccess }: AddStockShee
                                     if (selected) vm.setSelectedCard(selected);
                                     setHoveredPrintingId(null);
                                 }}
-                                onOpenChange={(open) => {
-                                    if (!open) setHoveredPrintingId(null);
-                                }}
+                                onOpenChange={(open) => { if (!open) setHoveredPrintingId(null); }}
                             >
                                 <SelectTrigger
                                     className="h-8 text-[13px] w-full bg-bg-elevated border-border-subtle text-text-secondary"
@@ -143,44 +135,19 @@ export function AddStockSheet({ card, isOpen, onClose, onSuccess }: AddStockShee
                                             : 'Selecione a edição'}
                                     </SelectValue>
                                 </SelectTrigger>
-                                <SelectContent position="item-aligned" className="min-w-max">
-                                    {vm.printings.map((p) => {
-                                        const pImageUrl =
-                                            p.image_uris?.normal ?? p.card_faces?.[0]?.image_uris?.normal;
-                                        return (
-                                            <SelectItem
-                                                key={p.id}
-                                                value={p.id}
-                                                className="text-[13px] p-0 m-0 cursor-pointer"
-                                            >
-                                                <HoverCard open={hoveredPrintingId === p.id}>
-                                                    <HoverCardTrigger className="block w-full">
-                                                        <div
-                                                            className="w-full flex py-1.5 px-8"
-                                                            onMouseEnter={() => setHoveredPrintingId(p.id)}
-                                                            onMouseLeave={() => setHoveredPrintingId(null)}
-                                                        >
-                                                            {p.set_name} #{p.collector_number}{' '}
-                                                            {p.prices?.usd ? `— $${p.prices.usd}` : ''}
-                                                        </div>
-                                                    </HoverCardTrigger>
-                                                    {pImageUrl && (
-                                                        <HoverCardContent
-                                                            side="left"
-                                                            sideOffset={12}
-                                                            className="w-auto p-1.5 rounded-xl border-border/50 shadow-xl data-closed:hidden"
-                                                        >
-                                                            <img
-                                                                src={pImageUrl}
-                                                                alt={p.name}
-                                                                className="w-44 rounded-lg"
-                                                            />
-                                                        </HoverCardContent>
-                                                    )}
-                                                </HoverCard>
-                                            </SelectItem>
-                                        );
-                                    })}
+                                <SelectContent position="popper" className="min-w-max max-h-64">
+                                    {vm.printings.map((p) => (
+                                        <SelectItem
+                                            key={p.id}
+                                            value={p.id}
+                                            className="text-[13px] cursor-pointer"
+                                            onMouseEnter={() => setHoveredPrintingId(p.id)}
+                                            onMouseLeave={() => setHoveredPrintingId(null)}
+                                        >
+                                            {p.set_name} #{p.collector_number}{' '}
+                                            {p.prices?.usd ? `— $${p.prices.usd}` : ''}
+                                        </SelectItem>
+                                    ))}
                                 </SelectContent>
                             </Select>
                         ) : (
