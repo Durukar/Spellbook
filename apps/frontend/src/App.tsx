@@ -8,6 +8,7 @@ import { StockListView } from './components/stock/StockListView'
 import { BuyersListView } from './components/buyers/BuyersListView'
 import { SalesListView } from './components/sales/SalesListView'
 import { TradeAnalyzerView } from './components/trade/TradeAnalyzerView'
+import { CollectionBySetView } from './components/stock/CollectionBySetView'
 import { ThemeProvider } from '@/components/theme-provider'
 
 function App() {
@@ -25,6 +26,7 @@ function App() {
               {currentView === 'allCards' && <StockListView />}
               {currentView === 'buyers' && <BuyersListView />}
               {currentView === 'sales' && <SalesListView />}
+              {currentView === 'collectionBySet' && <CollectionBySetView />}
               {currentView === 'trade' && <TradeAnalyzerView />}
             </main>
           </div>

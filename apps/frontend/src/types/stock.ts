@@ -31,3 +31,13 @@ export interface UpdateStockItemPayload {
   condition?: CardCondition
   is_foil?: boolean
 }
+
+export interface SetCollection {
+  set_name: string
+  icon_svg_uri?: string
+  unique_cards: number
+  total_quantity: number
+  total_value: number
+  foil_count: number
+  items: BackendStockItem[]
+}

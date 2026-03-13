@@ -6,7 +6,7 @@ import { CardDetailDrawer } from '@/components/stock/CardDetailDrawer'
 import { FoilCardOverlay, FoilBadge } from '@/components/stock/FoilOverlay'
 import type { BackendStockItem } from '@/types/stock'
 
-function StockCard({ item, onClick }: { item: BackendStockItem; onClick?: () => void }) {
+export function StockCard({ item, onClick }: { item: BackendStockItem; onClick?: () => void }) {
     const price = Number(item.purchase_price).toLocaleString('pt-BR', {
         style: 'currency',
         currency: 'BRL',
@@ -55,7 +55,7 @@ function StockCard({ item, onClick }: { item: BackendStockItem; onClick?: () => 
     )
 }
 
-function StockGridCard({
+export function StockGridCard({
     item,
     index,
     onClick,

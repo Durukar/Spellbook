@@ -37,7 +37,7 @@ import {
 } from '@/components/ui/collapsible';
 import { useTheme } from '@/components/theme-provider';
 
-export type AppView = 'dashboard' | 'search' | 'allCards' | 'buyers' | 'sales' | 'trade';
+export type AppView = 'dashboard' | 'search' | 'allCards' | 'collectionBySet' | 'buyers' | 'sales' | 'trade';
 
 interface AppSidebarProps {
     currentView?: AppView;
@@ -118,7 +118,10 @@ export function AppSidebar({ currentView = 'dashboard', onNavigate }: AppSidebar
                                                 </SidebarMenuSubButton>
                                             </SidebarMenuSubItem>
                                             <SidebarMenuSubItem>
-                                                <SidebarMenuSubButton>
+                                                <SidebarMenuSubButton
+                                                    isActive={currentView === 'collectionBySet'}
+                                                    onClick={() => onNavigate?.('collectionBySet')}
+                                                >
                                                     <span>Por Colecao</span>
                                                 </SidebarMenuSubButton>
                                             </SidebarMenuSubItem>
