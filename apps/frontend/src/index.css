@@ -198,53 +198,55 @@
   }
 }
 
+@keyframes foil-sweep {
+  0%, 60% {
+    transform: skewX(-18deg) translateX(-160%);
+    opacity: 0;
+  }
+  65% {
+    opacity: 1;
+  }
+  90% {
+    opacity: 0;
+  }
+  100% {
+    transform: skewX(-18deg) translateX(350%);
+    opacity: 0;
+  }
+}
+
 .foil-overlay {
   position: absolute;
   inset: 0;
   border-radius: inherit;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.foil-overlay::after {
+  content: '';
+  position: absolute;
+  top: -10%;
+  left: 0;
+  width: 45%;
+  height: 120%;
   background: linear-gradient(
-    115deg,
+    to right,
     transparent 0%,
-    rgba(255, 0, 180, 0.25) 15%,
-    rgba(0, 200, 255, 0.25) 30%,
-    rgba(100, 255, 100, 0.2) 45%,
-    rgba(255, 220, 0, 0.25) 60%,
-    rgba(255, 100, 0, 0.2) 75%,
-    rgba(180, 0, 255, 0.25) 90%,
+    rgba(200, 180, 255, 0.10) 35%,
+    rgba(255, 255, 255, 0.22) 50%,
+    rgba(160, 220, 255, 0.10) 65%,
     transparent 100%
   );
-  background-size: 300% 300%;
-  mix-blend-mode: color-dodge;
-  animation: foil-shimmer 4s ease-in-out infinite;
-  pointer-events: none;
+  mix-blend-mode: screen;
+  animation: foil-sweep 5s ease-in-out infinite;
 }
 
 .foil-border {
   position: relative;
-}
-
-.foil-border::before {
-  content: '';
-  position: absolute;
-  inset: -1px;
-  border-radius: inherit;
-  background: linear-gradient(
-    115deg,
-    #ff00b4,
-    #00c8ff,
-    #64ff64,
-    #ffdc00,
-    #ff6400,
-    #b400ff,
-    #ff00b4
-  );
-  background-size: 300% 300%;
-  animation: foil-shimmer 4s ease-in-out infinite;
-  z-index: 0;
-  opacity: 0.75;
+  border: 1px solid rgba(180, 144, 255, 0.2);
 }
 
 .foil-border > * {
-  position: relative;
   z-index: 1;
 }

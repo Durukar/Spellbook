@@ -1,4 +1,4 @@
-const FOIL_GRADIENT = 'linear-gradient(115deg, #ff00b4, #00c8ff, #64ff64, #ffdc00, #ff6400, #b400ff, #ff00b4)'
+const FOIL_GRADIENT = 'linear-gradient(115deg, #b490ff, #60c8ff, #80ffcc, #ffd580, #b490ff)'
 
 export function FoilCardOverlay() {
     return <div className="foil-overlay" aria-hidden="true" />
@@ -10,8 +10,6 @@ export function FoilBadge({ className = '' }: { className?: string }) {
             className={`inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-black tracking-widest text-white border border-white/20 ${className}`}
             style={{
                 background: FOIL_GRADIENT,
-                backgroundSize: '300% 300%',
-                animation: 'foil-shimmer 4s ease-in-out infinite',
             }}
         >
             FOIL
@@ -41,7 +39,7 @@ export function FoilToggleButton({
             style={active ? {
                 background: FOIL_GRADIENT,
                 backgroundSize: '300% 300%',
-                animation: 'foil-shimmer 4s ease-in-out infinite',
+                animation: 'foil-shimmer 6s ease-in-out infinite',
             } : undefined}
         >
             {active && <div className="absolute inset-0 bg-black/30" />}
