@@ -3,6 +3,7 @@ import { stockService } from '../services/stockService';
 import { scryfallService } from '../services/scryfallService';
 import type { ScryfallCard } from '../types/scryfall';
 import type { CardCondition } from '../models/Stock';
+import type { AcquisitionType } from '../types/stock';
 
 export function useAddStockViewModel(initialCard: ScryfallCard | null) {
     const [selectedCard, setSelectedCard] = useState<ScryfallCard | null>(initialCard);
@@ -12,6 +13,7 @@ export function useAddStockViewModel(initialCard: ScryfallCard | null) {
     const [condition, setCondition] = useState<CardCondition>('NM');
     const [quantity, setQuantity] = useState<string>('1');
     const [isFoil, setIsFoil] = useState<boolean>(false);
+    const [acquisitionType, setAcquisitionType] = useState<AcquisitionType>('purchase');
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [error, setError] = useState<string | null>(null);
 
@@ -49,16 +51,19 @@ export function useAddStockViewModel(initialCard: ScryfallCard | null) {
         setIsLoading(true);
         setError(null);
 
+        const isPurchase = acquisitionType === 'purchase';
+
         try {
             await stockService.addStockItem({
                 scryfallId: selectedCard.id,
                 cardName: selectedCard.name,
                 setName: selectedCard.set_name,
                 imageUrl: selectedCard.image_uris?.normal ?? selectedCard.card_faces?.[0]?.image_uris?.normal ?? '',
-                purchasePrice: parseFloat(price) || 0,
+                purchasePrice: isPurchase ? parseFloat(price) || 0 : 0,
                 condition,
                 quantity: parseInt(quantity) || 1,
                 ...(isFoil ? { isFoil } : {}),
+                ...(!isPurchase ? { acquisitionType } : {}),
             });
 
             setIsLoading(false);
@@ -83,6 +88,8 @@ export function useAddStockViewModel(initialCard: ScryfallCard | null) {
         setQuantity,
         isFoil,
         setIsFoil,
+        acquisitionType,
+        setAcquisitionType,
         isLoading,
         error,
         saveStockItem,

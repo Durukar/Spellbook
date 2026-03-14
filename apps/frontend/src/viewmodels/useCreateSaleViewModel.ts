@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { apiService } from '@/services/apiService'
-import type { BackendStockItem } from '@/types/stock'
+import type { BackendStockItem, AcquisitionType } from '@/types/stock'
 import type { PaymentMethod } from '@/types/sale'
 
 const STOP_LOSS_THRESHOLD = 0.15
@@ -16,6 +16,7 @@ export interface SaleLineItem {
     sale_price: number
     quantity: number
     max_quantity: number
+    acquisition_type?: AcquisitionType
 }
 
 export function useCreateSaleViewModel() {
@@ -27,14 +28,14 @@ export function useCreateSaleViewModel() {
     const [isLoading, setIsLoading] = useState(false)
     const [error, setError] = useState<string | null>(null)
 
-    function checkStopLoss(purchasePrice: number, salePrice: number): boolean {
-        if (purchasePrice === 0) return false
-        return (salePrice - purchasePrice) / purchasePrice < -STOP_LOSS_THRESHOLD
+    function checkStopLoss(item: SaleLineItem): boolean {
+        const type = item.acquisition_type ?? 'purchase'
+        if (type !== 'purchase') return false
+        if (item.purchase_price === 0) return false
+        return (item.sale_price - item.purchase_price) / item.purchase_price < -STOP_LOSS_THRESHOLD
     }
 
-    const stopLossItems = selectedItems.filter((i) =>
-        checkStopLoss(i.purchase_price, i.sale_price)
-    )
+    const stopLossItems = selectedItems.filter((i) => checkStopLoss(i))
 
     const hasStopLossViolation = stopLossItems.length > 0
 
@@ -56,6 +57,7 @@ export function useCreateSaleViewModel() {
                     sale_price: purchasePrice,
                     quantity: 1,
                     max_quantity: stockItem.quantity,
+                    acquisition_type: stockItem.acquisition_type,
                 },
             ]
         })

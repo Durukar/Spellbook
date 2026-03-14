@@ -1,5 +1,7 @@
 export type CardCondition = 'NM' | 'SP' | 'MP' | 'HP' | 'DMG'
 
+export type AcquisitionType = 'purchase' | 'accumulated' | 'gift' | 'trade'
+
 export interface StockItem {
   id: string
   scryfall_id: string
@@ -11,6 +13,7 @@ export interface StockItem {
   condition: CardCondition
   quantity: number
   is_foil: boolean
+  acquisition_type: AcquisitionType
   created_at: string
 }
 
@@ -23,6 +26,7 @@ export interface CreateStockItemDto {
   condition: CardCondition
   quantity: number
   is_foil: boolean
+  acquisition_type?: AcquisitionType
 }
 
 export interface UpdateStockItemDto {
@@ -30,4 +34,5 @@ export interface UpdateStockItemDto {
   purchase_price?: number
   condition?: CardCondition
   is_foil?: boolean
+  acquisition_type?: AcquisitionType
 }

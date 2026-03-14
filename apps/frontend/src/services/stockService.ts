@@ -12,6 +12,7 @@ class StockService {
             condition: item.condition,
             quantity: item.quantity,
             is_foil: item.isFoil ?? false,
+            ...(item.acquisitionType ? { acquisition_type: item.acquisitionType } : {}),
         })
 
         return {
@@ -25,6 +26,7 @@ class StockService {
             condition: backendItem.condition,
             quantity: backendItem.quantity,
             isFoil: backendItem.is_foil,
+            acquisitionType: backendItem.acquisition_type,
         }
     }
 
@@ -41,6 +43,7 @@ class StockService {
             condition: item.condition,
             quantity: item.quantity,
             isFoil: item.is_foil,
+            acquisitionType: item.acquisition_type,
         }))
     }
 

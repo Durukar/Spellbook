@@ -16,12 +16,21 @@ import {
 } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import type { BackendStockItem } from '@/types/stock'
+import type { BackendStockItem, AcquisitionType } from '@/types/stock'
 import type { CardCondition } from '@/models/Stock'
 import { FoilCardOverlay, FoilBadge, FoilToggleButton } from '@/components/stock/FoilOverlay'
 import { useEditStockViewModel } from '@/viewmodels/useEditStockViewModel'
 
 const CONDITIONS: CardCondition[] = ['NM', 'SP', 'MP', 'HP', 'DMG']
+
+const ACQUISITION_TYPE_LABELS: Record<AcquisitionType, string> = {
+    purchase: 'Compra',
+    accumulated: 'Acumulada',
+    gift: 'Presente',
+    trade: 'Trade',
+}
+
+const ACQUISITION_TYPES: AcquisitionType[] = ['purchase', 'accumulated', 'gift', 'trade']
 
 const CONDITION_LABELS: Record<CardCondition, string> = {
     NM: 'Perfeita',
@@ -211,6 +220,32 @@ export function CardDetailDrawer({ item, isOpen, onClose, onUpdate, onDelete }: 
                                 )}
                             </div>
 
+                            <div className="flex items-start justify-between gap-4">
+                                <span className="text-sm text-text-muted pt-1">Origem</span>
+                                {vm.isEditing ? (
+                                    <div className="flex gap-1 flex-wrap justify-end">
+                                        {ACQUISITION_TYPES.map((type) => (
+                                            <button
+                                                key={type}
+                                                onClick={() => vm.updateField('acquisition_type', type)}
+                                                className={`px-2 py-1 rounded-md text-xs font-semibold border transition-all ${
+                                                    vm.editForm.acquisition_type === type
+                                                        ? 'bg-accent/20 text-accent border-accent/50 ring-1 ring-accent/30'
+                                                        : 'border-border-subtle text-text-muted hover:border-border-default'
+                                                }`}
+                                            >
+                                                {ACQUISITION_TYPE_LABELS[type]}
+                                            </button>
+                                        ))}
+                                    </div>
+                                ) : (
+                                    <span className="text-sm font-semibold text-text-primary">
+                                        {ACQUISITION_TYPE_LABELS[item.acquisition_type ?? 'purchase']}
+                                    </span>
+                                )}
+                            </div>
+
+                            {vm.editForm.acquisition_type === 'purchase' || !vm.isEditing ? (
                             <div className="flex items-center justify-between gap-4">
                                 <span className="text-sm text-text-muted">Preco de Compra</span>
                                 {vm.isEditing ? (
@@ -226,6 +261,7 @@ export function CardDetailDrawer({ item, isOpen, onClose, onUpdate, onDelete }: 
                                     <span className="text-sm font-semibold text-text-primary">{price}</span>
                                 )}
                             </div>
+                            ) : null}
 
                             <div className="flex items-center justify-between">
                                 <span className="text-sm text-text-muted">Data de Aquisicao</span>

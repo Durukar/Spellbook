@@ -1,5 +1,7 @@
 export type CardCondition = 'NM' | 'SP' | 'MP' | 'HP' | 'DMG';
 
+export type AcquisitionType = 'purchase' | 'accumulated' | 'gift' | 'trade';
+
 export interface StockItem {
     id: string;
     scryfallId: string;
@@ -11,4 +13,5 @@ export interface StockItem {
     condition: CardCondition;
     quantity: number;
     isFoil?: boolean;
+    acquisitionType?: AcquisitionType;
 }

@@ -208,3 +208,60 @@ describe('useCreateSaleViewModel', () => {
         expect(result.current.selectedItems).toHaveLength(0)
     })
 })
+
+describe('useCreateSaleViewModel - acquisition_type e stop loss', () => {
+    beforeEach(() => {
+        vi.clearAllMocks()
+        vi.mocked(apiService.listStockItems).mockResolvedValue([mockStockItem])
+        vi.mocked(apiService.listBuyers).mockResolvedValue([mockBuyer])
+    })
+
+    it('nao dispara stop loss para carta acumulada (accumulated)', () => {
+        const accumulatedItem = { ...mockStockItem, acquisition_type: 'accumulated' as const }
+        const { result } = renderHook(() => useCreateSaleViewModel())
+
+        act(() => result.current.addItem(accumulatedItem))
+        act(() => result.current.updateSalePrice('stock-001', 0))
+
+        expect(result.current.hasStopLossViolation).toBe(false)
+    })
+
+    it('nao dispara stop loss para carta recebida de presente (gift)', () => {
+        const giftItem = { ...mockStockItem, acquisition_type: 'gift' as const }
+        const { result } = renderHook(() => useCreateSaleViewModel())
+
+        act(() => result.current.addItem(giftItem))
+        act(() => result.current.updateSalePrice('stock-001', 0))
+
+        expect(result.current.hasStopLossViolation).toBe(false)
+    })
+
+    it('nao dispara stop loss para carta de trade (trade)', () => {
+        const tradeItem = { ...mockStockItem, acquisition_type: 'trade' as const }
+        const { result } = renderHook(() => useCreateSaleViewModel())
+
+        act(() => result.current.addItem(tradeItem))
+        act(() => result.current.updateSalePrice('stock-001', 0))
+
+        expect(result.current.hasStopLossViolation).toBe(false)
+    })
+
+    it('dispara stop loss apenas para cartas compradas (purchase) com prejuizo', () => {
+        const purchasedItem = { ...mockStockItem, acquisition_type: 'purchase' as const }
+        const { result } = renderHook(() => useCreateSaleViewModel())
+
+        act(() => result.current.addItem(purchasedItem))
+        act(() => result.current.updateSalePrice('stock-001', 5))
+
+        expect(result.current.hasStopLossViolation).toBe(true)
+    })
+
+    it('item sem acquisition_type definido trata como purchase (comportamento legado)', () => {
+        const { result } = renderHook(() => useCreateSaleViewModel())
+
+        act(() => result.current.addItem(mockStockItem))
+        act(() => result.current.updateSalePrice('stock-001', 5))
+
+        expect(result.current.hasStopLossViolation).toBe(true)
+    })
+})

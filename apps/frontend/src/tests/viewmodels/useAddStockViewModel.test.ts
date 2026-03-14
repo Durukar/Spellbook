@@ -144,3 +144,96 @@ describe('useAddStockViewModel', () => {
         expect(result.current.isLoading).toBe(false);
     });
 });
+
+describe('useAddStockViewModel - acquisition_type', () => {
+    const mockCard: ScryfallCard = {
+        object: 'card',
+        id: 'card-1',
+        name: 'Lightning Bolt',
+        set: 'lea',
+        set_name: 'Alpha',
+        collector_number: '1',
+        released_at: '1993-08-05',
+        lang: 'en',
+        rarity: 'common',
+        prices: { usd: '15.50', eur: null, usd_foil: null, eur_foil: null },
+        image_uris: { normal: 'http://example.com/bolt.jpg', small: '', large: '', art_crop: '', border_crop: '' },
+    };
+
+    beforeEach(() => {
+        vi.spyOn(stockService, 'addStockItem').mockImplementation(async (item: any) => ({
+            ...item,
+            id: 'generated-uuid',
+            purchaseDate: '2023-10-27T10:00:00.000Z',
+        }));
+        vi.spyOn(scryfallService, 'searchCardsExactName').mockResolvedValue({
+            object: 'list',
+            has_more: false,
+            total_cards: 1,
+            data: [mockCard],
+        });
+    });
+
+    it('inicializa com acquisitionType purchase por padrao', () => {
+        const { result } = renderHook(() => useAddStockViewModel(mockCard));
+        expect(result.current.acquisitionType).toBe('purchase');
+    });
+
+    it('permite alterar o acquisitionType', () => {
+        const { result } = renderHook(() => useAddStockViewModel(mockCard));
+
+        act(() => result.current.setAcquisitionType('accumulated'));
+
+        expect(result.current.acquisitionType).toBe('accumulated');
+    });
+
+    it('quando acquisitionType e accumulated, salva com purchasePrice zero independente do preco informado', async () => {
+        const { result } = renderHook(() => useAddStockViewModel(mockCard));
+
+        act(() => {
+            result.current.setAcquisitionType('accumulated');
+            result.current.setPrice('50.00');
+        });
+
+        await act(async () => { await result.current.saveStockItem(); });
+
+        expect(stockService.addStockItem).toHaveBeenCalledWith(
+            expect.objectContaining({
+                acquisitionType: 'accumulated',
+                purchasePrice: 0,
+            })
+        );
+    });
+
+    it('quando acquisitionType e gift, salva com purchasePrice zero', async () => {
+        const { result } = renderHook(() => useAddStockViewModel(mockCard));
+
+        act(() => {
+            result.current.setAcquisitionType('gift');
+            result.current.setPrice('30.00');
+        });
+
+        await act(async () => { await result.current.saveStockItem(); });
+
+        expect(stockService.addStockItem).toHaveBeenCalledWith(
+            expect.objectContaining({
+                acquisitionType: 'gift',
+                purchasePrice: 0,
+            })
+        );
+    });
+
+    it('quando acquisitionType e purchase, salva com purchasePrice informado', async () => {
+        const { result } = renderHook(() => useAddStockViewModel(mockCard));
+
+        act(() => result.current.setPrice('25.00'));
+
+        await act(async () => { await result.current.saveStockItem(); });
+
+        expect(stockService.addStockItem).toHaveBeenCalledWith(
+            expect.objectContaining({
+                purchasePrice: 25.00,
+            })
+        );
+    });
+});

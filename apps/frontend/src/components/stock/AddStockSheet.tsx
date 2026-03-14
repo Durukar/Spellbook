@@ -19,6 +19,7 @@ import { AlertCircle, Hash, Check } from 'lucide-react';
 import { toast } from 'sonner';
 import type { ScryfallCard } from '@/types/scryfall';
 import type { CardCondition } from '@/models/Stock';
+import type { AcquisitionType } from '@/types/stock';
 import { useAddStockViewModel } from '@/viewmodels/useAddStockViewModel';
 import { FoilCardOverlay, FoilToggleButton } from '@/components/stock/FoilOverlay';
 
@@ -44,6 +45,13 @@ const CONDITION_COLORS: Record<CardCondition, string> = {
     HP: 'bg-orange-500/20 text-orange-400 border-orange-500/40',
     DMG: 'bg-red-500/20 text-red-400 border-red-500/40',
 };
+
+const ACQUISITION_TYPES: { value: AcquisitionType; label: string; description: string }[] = [
+    { value: 'purchase', label: 'Compra', description: 'Adquirida com pagamento' },
+    { value: 'accumulated', label: 'Acumulada', description: 'Acumulada ao longo do tempo' },
+    { value: 'gift', label: 'Presente', description: 'Recebida de presente' },
+    { value: 'trade', label: 'Trade', description: 'Obtida em troca' },
+];
 
 export function AddStockSheet({ card, isOpen, onClose, onSuccess }: AddStockSheetProps) {
     const vm = useAddStockViewModel(card);
@@ -180,8 +188,38 @@ export function AddStockSheet({ card, isOpen, onClose, onSuccess }: AddStockShee
 
                     <div className="h-px bg-border-subtle" />
 
+                    {/* Origem da aquisicao */}
+                    <div className="flex flex-col gap-2">
+                        <Label className="text-xs font-semibold text-text-muted uppercase tracking-wider">
+                            Origem
+                        </Label>
+                        <div className="flex gap-1.5 flex-wrap">
+                            {ACQUISITION_TYPES.map((type) => {
+                                const isSelected = vm.acquisitionType === type.value;
+                                return (
+                                    <button
+                                        key={type.value}
+                                        type="button"
+                                        title={type.description}
+                                        onClick={() => vm.setAcquisitionType(type.value)}
+                                        className={`px-3 py-1.5 rounded-md text-xs font-semibold border transition-all ${
+                                            isSelected
+                                                ? 'bg-accent/20 text-accent border-accent/50 ring-1 ring-accent/30'
+                                                : 'border-border-subtle text-text-muted hover:border-border-default hover:text-text-secondary'
+                                        }`}
+                                    >
+                                        {type.label}
+                                    </button>
+                                );
+                            })}
+                        </div>
+                    </div>
+
+                    <div className="h-px bg-border-subtle" />
+
                     {/* Dados financeiros */}
                     <div className="space-y-4">
+                        {vm.acquisitionType === 'purchase' && (
                         <div className="flex flex-col gap-2">
                             <Label
                                 htmlFor="price-drawer"
@@ -205,6 +243,7 @@ export function AddStockSheet({ card, isOpen, onClose, onSuccess }: AddStockShee
                                 />
                             </div>
                         </div>
+                        )}
 
                         <div className="flex flex-col gap-2">
                             <Label

@@ -1,5 +1,7 @@
 import type { CardCondition } from '@/models/Stock'
 
+export type AcquisitionType = 'purchase' | 'accumulated' | 'gift' | 'trade'
+
 export interface BackendStockItem {
   id: string
   scryfall_id: string
@@ -11,6 +13,7 @@ export interface BackendStockItem {
   condition: CardCondition
   quantity: number
   is_foil: boolean
+  acquisition_type?: AcquisitionType
   created_at: string
 }
 
@@ -23,6 +26,7 @@ export interface CreateStockItemPayload {
   condition: CardCondition
   quantity: number
   is_foil: boolean
+  acquisition_type?: AcquisitionType
 }
 
 export interface UpdateStockItemPayload {
@@ -30,6 +34,7 @@ export interface UpdateStockItemPayload {
   purchase_price?: number
   condition?: CardCondition
   is_foil?: boolean
+  acquisition_type?: AcquisitionType
 }
 
 export interface SetCollection {

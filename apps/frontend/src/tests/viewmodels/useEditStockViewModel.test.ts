@@ -138,3 +138,50 @@ describe('useEditStockViewModel', () => {
         expect(onSuccess).not.toHaveBeenCalled()
     })
 })
+
+describe('useEditStockViewModel - acquisition_type', () => {
+    beforeEach(() => vi.clearAllMocks())
+
+    it('startEdit popula editForm com acquisition_type do item', () => {
+        const itemWithType = { ...mockItem, acquisition_type: 'accumulated' as const }
+        const { result } = renderHook(() => useEditStockViewModel(itemWithType))
+
+        act(() => result.current.startEdit())
+
+        expect(result.current.editForm.acquisition_type).toBe('accumulated')
+    })
+
+    it('item sem acquisition_type inicializa editForm com purchase como padrao', () => {
+        const { result } = renderHook(() => useEditStockViewModel(mockItem))
+
+        act(() => result.current.startEdit())
+
+        expect(result.current.editForm.acquisition_type).toBe('purchase')
+    })
+
+    it('updateField permite alterar acquisition_type', () => {
+        const { result } = renderHook(() => useEditStockViewModel(mockItem))
+
+        act(() => result.current.startEdit())
+        act(() => result.current.updateField('acquisition_type', 'gift' as const))
+
+        expect(result.current.editForm.acquisition_type).toBe('gift')
+    })
+
+    it('saveEdit envia acquisition_type no payload quando e diferente de purchase', async () => {
+        const itemWithType = { ...mockItem, acquisition_type: 'accumulated' as const }
+        const updatedItem = { ...itemWithType }
+        vi.mocked(apiService.updateStockItem).mockResolvedValue(updatedItem)
+
+        const onSuccess = vi.fn()
+        const { result } = renderHook(() => useEditStockViewModel(itemWithType))
+
+        act(() => result.current.startEdit())
+        await act(async () => result.current.saveEdit(onSuccess))
+
+        expect(apiService.updateStockItem).toHaveBeenCalledWith(
+            mockItem.id,
+            expect.objectContaining({ acquisition_type: 'accumulated' })
+        )
+    })
+})

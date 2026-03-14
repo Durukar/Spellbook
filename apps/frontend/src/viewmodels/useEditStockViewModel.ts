@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { apiService } from '@/services/apiService'
-import type { BackendStockItem, UpdateStockItemPayload } from '@/types/stock'
+import type { BackendStockItem, UpdateStockItemPayload, AcquisitionType } from '@/types/stock'
 import type { CardCondition } from '@/models/Stock'
 
 interface EditForm {
@@ -8,6 +8,7 @@ interface EditForm {
     purchase_price: number
     condition: CardCondition
     is_foil: boolean
+    acquisition_type: AcquisitionType
 }
 
 function itemToForm(item: BackendStockItem): EditForm {
@@ -16,6 +17,7 @@ function itemToForm(item: BackendStockItem): EditForm {
         purchase_price: Number(item.purchase_price),
         condition: item.condition,
         is_foil: item.is_foil,
+        acquisition_type: item.acquisition_type ?? 'purchase',
     }
 }
 
@@ -51,6 +53,9 @@ export function useEditStockViewModel(item: BackendStockItem) {
                 purchase_price: editForm.purchase_price,
                 condition: editForm.condition,
                 is_foil: editForm.is_foil,
+                ...(editForm.acquisition_type !== 'purchase'
+                    ? { acquisition_type: editForm.acquisition_type }
+                    : {}),
             }
             const updated = await apiService.updateStockItem(item.id, payload)
             setIsEditing(false)

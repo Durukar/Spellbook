@@ -1,0 +1,1 @@
+ALTER TABLE stock_items ADD COLUMN IF NOT EXISTS market_price_eur DECIMAL(10,4) DEFAULT NULL;
