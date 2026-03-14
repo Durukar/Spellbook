@@ -13,7 +13,7 @@ export function corsMiddleware(): MiddlewareHandler<{ Bindings: Env }> {
 
     return cors({
       origin: isAllowed ? origin : allowedOrigins[0],
-      allowMethods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+      allowMethods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
       allowHeaders: ['Content-Type', 'Authorization'],
       maxAge: 86400,
     })(c, next)

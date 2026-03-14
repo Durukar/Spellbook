@@ -155,8 +155,8 @@ export function CardDetailDrawer({ item, isOpen, onClose, onUpdate, onDelete }: 
                                 <span className="text-sm text-text-muted">Versao</span>
                                 {vm.isEditing ? (
                                     <FoilToggleButton
-                                        isFoil={vm.editForm.is_foil}
-                                        onToggle={() => vm.updateField('is_foil', !vm.editForm.is_foil)}
+                                        active={vm.editForm.is_foil}
+                                        onClick={() => vm.updateField('is_foil', !vm.editForm.is_foil)}
                                     />
                                 ) : (
                                     item.is_foil

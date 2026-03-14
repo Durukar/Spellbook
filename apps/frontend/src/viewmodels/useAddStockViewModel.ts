@@ -12,7 +12,7 @@ export function useAddStockViewModel(initialCard: ScryfallCard | null) {
 
     const [price, setPrice] = useState<string>(initialPrice);
     const [condition, setCondition] = useState<CardCondition>('NM');
-    const [quantity, setQuantity] = useState<number>(1);
+    const [quantity, setQuantity] = useState<string>('1');
     const [isFoil, setIsFoil] = useState<boolean>(false);
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [error, setError] = useState<string | null>(null);
@@ -73,7 +73,7 @@ export function useAddStockViewModel(initialCard: ScryfallCard | null) {
                 imageUrl: selectedCard.image_uris?.normal ?? selectedCard.card_faces?.[0]?.image_uris?.normal ?? '',
                 purchasePrice: parseFloat(price) || 0,
                 condition,
-                quantity,
+                quantity: parseInt(quantity) || 1,
                 ...(isFoil ? { isFoil } : {}),
             });
 

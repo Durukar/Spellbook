@@ -13,7 +13,7 @@ interface EditForm {
 function itemToForm(item: BackendStockItem): EditForm {
     return {
         quantity: item.quantity,
-        purchase_price: item.purchase_price,
+        purchase_price: Number(item.purchase_price),
         condition: item.condition,
         is_foil: item.is_foil,
     }

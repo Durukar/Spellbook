@@ -217,7 +217,7 @@ export function AddStockSheet({ card, isOpen, onClose, onSuccess }: AddStockShee
                                     min="1"
                                     step="1"
                                     value={vm.quantity}
-                                    onChange={(e) => vm.setQuantity(parseInt(e.target.value) || 1)}
+                                    onChange={(e) => vm.setQuantity(e.target.value)}
                                     className="pl-9 h-10 bg-bg-elevated border-border-subtle font-mono text-text-primary"
                                 />
                             </div>

@@ -30,11 +30,18 @@ export const stockController = {
     const id = c.req.param('id')
     if (!id) return c.json({ error: 'ID obrigatorio.' }, 400)
 
-    const body = await c.req.json<UpdateStockItemDto>()
-    const item = await stockService.update(id, body)
-
-    if (!item) return c.json({ error: 'Item nao encontrado.' }, 404)
-    return c.json(item)
+    try {
+      const body = await c.req.json<UpdateStockItemDto>()
+      const item = await stockService.update(id, body)
+      if (!item) return c.json({ error: 'Item nao encontrado.' }, 404)
+      return c.json(item)
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : ''
+      if (msg.includes('unique') || msg.includes('duplicate')) {
+        return c.json({ error: 'Ja existe um item com essa combinacao de edicao, condicao e foil.' }, 409)
+      }
+      return c.json({ error: 'Erro ao atualizar item.' }, 500)
+    }
   },
 
   async delete(c: Context) {
