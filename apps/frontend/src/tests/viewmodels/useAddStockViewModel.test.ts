@@ -55,7 +55,7 @@ describe('useAddStockViewModel', () => {
 
         expect(result.current.price).toBe('15.50');
         expect(result.current.condition).toBe('NM');
-        expect(result.current.quantity).toBe(1);
+        expect(result.current.quantity).toBe('1');
         expect(result.current.isLoading).toBe(false);
         expect(result.current.error).toBeNull();
     });
@@ -118,6 +118,7 @@ describe('useAddStockViewModel', () => {
             setName: 'Alpha',
             imageUrl: 'http://example.com/bolt.jpg',
             purchasePrice: 15.50,
+            priceCurrency: 'USD',
             condition: 'NM',
             quantity: 1,
         });

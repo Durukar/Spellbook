@@ -19,6 +19,7 @@ const mockStockItem = {
     set_name: 'Alpha',
     image_url: 'https://example.com/img.jpg',
     purchase_price: 10,
+    price_currency: 'USD' as const,
     purchase_date: '2026-03-10T00:00:00Z',
     condition: 'NM' as const,
     quantity: 3,

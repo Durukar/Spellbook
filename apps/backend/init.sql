@@ -16,6 +16,7 @@ CREATE TABLE IF NOT EXISTS stock_items (
   set_name VARCHAR(255) NOT NULL,
   image_url TEXT NOT NULL,
   purchase_price DECIMAL(10,2) NOT NULL DEFAULT 0,
+  price_currency VARCHAR(3) NOT NULL DEFAULT 'USD',
   purchase_date TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
   condition VARCHAR(3) NOT NULL CHECK (condition IN ('NM', 'SP', 'MP', 'HP', 'DMG')),
   quantity INTEGER NOT NULL DEFAULT 1,

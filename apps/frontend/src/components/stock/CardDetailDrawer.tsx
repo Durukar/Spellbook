@@ -59,10 +59,10 @@ export function CardDetailDrawer({ item, isOpen, onClose, onUpdate, onDelete }: 
     const vm = useEditStockViewModel(item)
     const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
 
-    const price = Number(item.purchase_price).toLocaleString('pt-BR', {
-        style: 'currency',
-        currency: 'BRL',
-    })
+    const currency = item.price_currency ?? 'USD'
+    const price = currency === 'BRL'
+        ? Number(item.purchase_price).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
+        : `$${Number(item.purchase_price).toFixed(2)} USD`
     const date = new Date(item.purchase_date).toLocaleDateString('pt-BR')
     const conditionColor = CONDITION_COLORS[item.condition]
     const conditionLabel = CONDITION_LABELS[item.condition]

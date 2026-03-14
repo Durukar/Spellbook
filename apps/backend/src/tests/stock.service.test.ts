@@ -16,6 +16,7 @@ const mockItem = {
   set_name: 'Limited Edition Alpha',
   image_url: 'https://example.com/img.jpg',
   purchase_price: 1.5,
+  price_currency: 'USD',
   purchase_date: '2026-03-08T00:00:00.000Z',
   condition: 'NM',
   quantity: 1,
@@ -34,8 +35,10 @@ describe('stockService.create', () => {
       set_name: 'Limited Edition Alpha',
       image_url: 'https://example.com/img.jpg',
       purchase_price: 1.5,
+      price_currency: 'USD',
       condition: 'NM',
       quantity: 1,
+      is_foil: false,
     })
 
     expect(result.id).toBe(mockItem.id)
@@ -52,8 +55,10 @@ describe('stockService.create', () => {
       set_name: 'Limited Edition Alpha',
       image_url: 'https://example.com/img.jpg',
       purchase_price: 1.5,
+      price_currency: 'USD' as const,
       condition: 'NM' as const,
       quantity: 2,
+      is_foil: false,
     }
 
     await stockService.create(dto)
@@ -62,7 +67,8 @@ describe('stockService.create', () => {
     const params = call[1] as unknown[]
     expect(params[0]).toBe('abc123')
     expect(params[1]).toBe('Lightning Bolt')
-    expect(params[6]).toBe(2)
+    expect(params[5]).toBe('USD')
+    expect(params[7]).toBe(2)
   })
 })
 

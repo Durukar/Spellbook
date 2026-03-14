@@ -15,7 +15,7 @@ import {
     SelectTrigger,
     SelectValue,
 } from '@/components/ui/select';
-import { AlertCircle, DollarSign, Hash, Check } from 'lucide-react';
+import { AlertCircle, DollarSign, Hash, Check, RefreshCw } from 'lucide-react';
 import { toast } from 'sonner';
 import type { ScryfallCard } from '@/types/scryfall';
 import type { CardCondition } from '@/models/Stock';
@@ -183,15 +183,34 @@ export function AddStockSheet({ card, isOpen, onClose, onSuccess }: AddStockShee
                     {/* Dados financeiros */}
                     <div className="space-y-4">
                         <div className="flex flex-col gap-2">
-                            <Label
-                                htmlFor="price-drawer"
-                                className="text-xs font-semibold text-text-muted uppercase tracking-wider"
-                            >
-                                Preço Pago
-                            </Label>
+                            <div className="flex items-center justify-between">
+                                <Label
+                                    htmlFor="price-drawer"
+                                    className="text-xs font-semibold text-text-muted uppercase tracking-wider"
+                                >
+                                    Preco Pago
+                                </Label>
+                                <button
+                                    type="button"
+                                    onClick={() => vm.setUseScryfall(!vm.useScryfall)}
+                                    className={`flex items-center gap-1.5 text-[11px] font-medium px-2 py-1 rounded-md border transition-all ${
+                                        vm.useScryfall
+                                            ? 'bg-primary/10 border-primary/40 text-primary'
+                                            : 'bg-bg-elevated border-border-subtle text-text-muted hover:text-text-secondary'
+                                    }`}
+                                    title="Usar cotacao de mercado do Scryfall"
+                                >
+                                    <RefreshCw className="h-3 w-3" />
+                                    Cotacao Scryfall
+                                </button>
+                            </div>
                             <div className="relative">
                                 <div className="absolute inset-y-0 left-3 flex items-center pointer-events-none text-text-muted">
-                                    <DollarSign className="h-4 w-4 shrink-0" />
+                                    {vm.priceCurrency === 'USD' ? (
+                                        <DollarSign className="h-4 w-4 shrink-0" />
+                                    ) : (
+                                        <span className="text-xs font-bold shrink-0">R$</span>
+                                    )}
                                 </div>
                                 <Input
                                     id="price-drawer"
@@ -201,9 +220,28 @@ export function AddStockSheet({ card, isOpen, onClose, onSuccess }: AddStockShee
                                     value={vm.price}
                                     onChange={(e) => vm.setPrice(e.target.value)}
                                     placeholder="0.00"
-                                    className="pl-9 h-10 bg-bg-elevated border-border-subtle font-mono text-text-primary"
+                                    readOnly={vm.useScryfall}
+                                    className={`pl-9 h-10 border-border-subtle font-mono text-text-primary ${
+                                        vm.useScryfall
+                                            ? 'bg-bg-muted/40 text-text-muted cursor-default'
+                                            : 'bg-bg-elevated'
+                                    }`}
                                 />
+                                <div className="absolute inset-y-0 right-3 flex items-center pointer-events-none">
+                                    <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded ${
+                                        vm.priceCurrency === 'USD'
+                                            ? 'bg-blue-500/20 text-blue-400'
+                                            : 'bg-emerald-500/20 text-emerald-400'
+                                    }`}>
+                                        {vm.priceCurrency}
+                                    </span>
+                                </div>
                             </div>
+                            {vm.useScryfall && (
+                                <p className="text-[11px] text-text-muted">
+                                    Cotacao de mercado do Scryfall. Desative para inserir o preco pago em R$.
+                                </p>
+                            )}
                         </div>
 
                         <div className="flex flex-col gap-2">

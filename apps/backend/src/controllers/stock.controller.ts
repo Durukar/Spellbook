@@ -17,7 +17,7 @@ export const stockController = {
       return c.json({ error: 'Dados insuficientes para cadastrar a carta.' }, 400)
     }
 
-    const item = await stockService.create(body)
+    const item = await stockService.create({ price_currency: 'USD', ...body })
     return c.json(item, 201)
   },
 

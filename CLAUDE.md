@@ -49,7 +49,7 @@ Execute na pasta `apps/frontend/`:
 - **Uso de Emojis**: NUNCA use emojis em documentacoes ou comentarios de codigo.
 - **Design Visual**: Priorize a "Arquitetura Visual" - software premium, moderno, minimalista.
 - **Respostas Diretas**: Responda de forma direta e concisa com codigo completo.
-- **Autoria de Commits**: Atue como a usuario "Ingrid" nos commits. Mantenha essa identidade.
+- **Autoria de Commits**: Commits devem ser feitos como se fosse o dono do repositorio.
 - **Arquitetura de componentes**: Siga  sempre como MVVM
 
 # Informaçoes extras

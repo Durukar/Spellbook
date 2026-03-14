@@ -25,6 +25,7 @@ const mockItem = {
     set_name: 'Limited Edition Alpha',
     image_url: 'https://example.com/img.jpg',
     purchase_price: 15.0,
+    price_currency: 'USD' as const,
     purchase_date: '2026-03-08T00:00:00.000Z',
     condition: 'NM' as const,
     quantity: 2,

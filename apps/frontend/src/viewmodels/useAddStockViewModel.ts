@@ -3,14 +3,21 @@ import { stockService } from '../services/stockService';
 import { scryfallService } from '../services/scryfallService';
 import type { ScryfallCard } from '../types/scryfall';
 import type { CardCondition } from '../models/Stock';
+import type { PriceCurrency } from '../types/stock';
+
+function getScryfallPrice(card: ScryfallCard | null, foil: boolean): string {
+    if (!card) return '';
+    if (foil) return card.prices?.usd_foil ?? card.prices?.usd ?? card.prices?.eur ?? '';
+    return card.prices?.usd ?? card.prices?.eur ?? '';
+}
 
 export function useAddStockViewModel(initialCard: ScryfallCard | null) {
-    const initialPrice = initialCard?.prices?.usd ?? initialCard?.prices?.eur ?? '';
-
     const [selectedCard, setSelectedCard] = useState<ScryfallCard | null>(initialCard);
     const [printings, setPrintings] = useState<ScryfallCard[]>(initialCard ? [initialCard] : []);
 
-    const [price, setPrice] = useState<string>(initialPrice);
+    const [useScryfall, setUseScryfall] = useState<boolean>(true);
+    const [price, setPrice] = useState<string>(getScryfallPrice(initialCard, false));
+    const [priceCurrency, setPriceCurrency] = useState<PriceCurrency>('USD');
     const [condition, setCondition] = useState<CardCondition>('NM');
     const [quantity, setQuantity] = useState<string>('1');
     const [isFoil, setIsFoil] = useState<boolean>(false);
@@ -40,20 +47,31 @@ export function useAddStockViewModel(initialCard: ScryfallCard | null) {
 
     const handleSetSelectedCard = (card: ScryfallCard) => {
         setSelectedCard(card);
-        const newPrice = isFoil
-            ? (card.prices?.usd_foil ?? card.prices?.usd ?? card.prices?.eur ?? '')
-            : (card.prices?.usd ?? card.prices?.eur ?? '');
-        setPrice(newPrice);
+        if (useScryfall) {
+            setPrice(getScryfallPrice(card, isFoil));
+        }
     };
 
     const handleSetIsFoil = (foil: boolean) => {
         setIsFoil(foil);
-        if (selectedCard) {
-            const newPrice = foil
-                ? (selectedCard.prices?.usd_foil ?? selectedCard.prices?.usd ?? selectedCard.prices?.eur ?? '')
-                : (selectedCard.prices?.usd ?? selectedCard.prices?.eur ?? '');
-            setPrice(newPrice);
+        if (useScryfall && selectedCard) {
+            setPrice(getScryfallPrice(selectedCard, foil));
         }
+    };
+
+    const handleSetUseScryfall = (value: boolean) => {
+        setUseScryfall(value);
+        if (value) {
+            setPrice(getScryfallPrice(selectedCard, isFoil));
+            setPriceCurrency('USD');
+        } else {
+            setPrice('');
+            setPriceCurrency('BRL');
+        }
+    };
+
+    const handleSetPrice = (value: string) => {
+        setPrice(value);
     };
 
     const saveStockItem = async (): Promise<boolean> => {
@@ -72,6 +90,7 @@ export function useAddStockViewModel(initialCard: ScryfallCard | null) {
                 setName: selectedCard.set_name,
                 imageUrl: selectedCard.image_uris?.normal ?? selectedCard.card_faces?.[0]?.image_uris?.normal ?? '',
                 purchasePrice: parseFloat(price) || 0,
+                priceCurrency,
                 condition,
                 quantity: parseInt(quantity) || 1,
                 ...(isFoil ? { isFoil } : {}),
@@ -91,8 +110,11 @@ export function useAddStockViewModel(initialCard: ScryfallCard | null) {
         selectedCard,
         setSelectedCard: handleSetSelectedCard,
         printings,
+        useScryfall,
+        setUseScryfall: handleSetUseScryfall,
         price,
-        setPrice,
+        setPrice: handleSetPrice,
+        priceCurrency,
         condition,
         setCondition,
         quantity,

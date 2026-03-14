@@ -1,5 +1,7 @@
 import type { CardCondition } from '@/models/Stock'
 
+export type PriceCurrency = 'USD' | 'BRL'
+
 export interface BackendStockItem {
   id: string
   scryfall_id: string
@@ -7,6 +9,7 @@ export interface BackendStockItem {
   set_name: string
   image_url: string
   purchase_price: number
+  price_currency: PriceCurrency
   purchase_date: string
   condition: CardCondition
   quantity: number
@@ -20,6 +23,7 @@ export interface CreateStockItemPayload {
   set_name: string
   image_url: string
   purchase_price: number
+  price_currency: PriceCurrency
   condition: CardCondition
   quantity: number
   is_foil: boolean
@@ -28,6 +32,7 @@ export interface CreateStockItemPayload {
 export interface UpdateStockItemPayload {
   quantity?: number
   purchase_price?: number
+  price_currency?: PriceCurrency
   condition?: CardCondition
   is_foil?: boolean
 }

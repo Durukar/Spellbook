@@ -1,0 +1,2 @@
+ALTER TABLE stock_items
+  ADD COLUMN IF NOT EXISTS price_currency VARCHAR(3) NOT NULL DEFAULT 'USD';

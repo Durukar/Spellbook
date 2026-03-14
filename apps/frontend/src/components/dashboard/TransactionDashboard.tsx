@@ -104,15 +104,21 @@ export function TransactionDashboard({ onNavigate }: TransactionDashboardProps) 
             <div className="h-14 px-8 flex justify-between items-center shrink-0 border-b border-border-subtle/50">
                 <div className="flex items-center gap-6">
                     <div className="flex items-center gap-4">
-                        <span className="text-text-primary font-bold text-sm">Valor da Colecao</span>
                         <div className="flex items-center gap-2 bg-bg-card border border-border-subtle rounded-xl py-1.5 px-3">
                             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-text-muted">
                                 <rect x="2" y="6" width="20" height="12" rx="2"></rect>
                                 <path d="M12 12h.01"></path>
                             </svg>
                             <span className="font-bold text-text-primary text-sm">
-                                {(stats?.collectionValue ?? 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
+                                {stats?.collectionValueBRL
+                                    ? stats.collectionValueBRL.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
+                                    : '—'}
                             </span>
+                            {stats?.usdToBrlRate ? (
+                                <span className="text-[10px] text-text-muted border-l border-border-subtle pl-2">
+                                    1 USD = {stats.usdToBrlRate.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
+                                </span>
+                            ) : null}
                         </div>
                     </div>
                     <div className="flex items-center gap-2">
@@ -202,7 +208,7 @@ export function TransactionDashboard({ onNavigate }: TransactionDashboardProps) 
                     <div className="grid grid-cols-6 gap-3 mb-4 shrink-0">
                         <FinancialCard
                             label="Patrimonio em Estoque"
-                            value={saleStats.stock_value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
+                            value={stats.collectionValueBRL.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
                             icon={Package}
                             color="bg-sky-500/15 text-sky-400"
                         />
@@ -254,10 +260,16 @@ export function TransactionDashboard({ onNavigate }: TransactionDashboardProps) 
                                     {stats.collectionCount.toLocaleString()}
                                     <span className="text-text-muted text-lg ml-1">cartas</span>
                                 </div>
-                                <div className="flex items-center gap-2 mb-4">
-                                    <span className="text-xs font-bold text-text-muted bg-bg-base px-1.5 py-0.5 rounded">
-                                        {stats.collectionValue.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })} valor total
-                                    </span>
+                                <div className="flex items-center gap-2 mb-4 flex-wrap">
+                                    {stats.collectionValueBRL > 0 ? (
+                                        <span className="text-xs font-bold text-emerald-400 bg-emerald-500/10 px-1.5 py-0.5 rounded">
+                                            {stats.collectionValueBRL.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })} valor total
+                                        </span>
+                                    ) : (
+                                        <span className="text-xs font-bold text-text-muted bg-bg-base px-1.5 py-0.5 rounded">
+                                            Sem valor cadastrado
+                                        </span>
+                                    )}
                                     {stats.foilPercentage > 0 && (
                                         <span className="text-xs font-bold text-yellow-400 bg-yellow-400/10 px-1.5 py-0.5 rounded">
                                             {stats.foilPercentage}% Foil
