@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { Pencil, Trash2, X, Check, AlertCircle, Phone, MapPin, Instagram } from 'lucide-react'
+import { toast } from 'sonner'
 import {
     Sheet,
     SheetContent,
@@ -46,12 +47,18 @@ export function BuyerDetailDrawer({ buyer, isOpen, onClose, onUpdate, onDelete }
 
     const handleSave = () => {
         vm.saveEdit((updated) => {
+            toast.success('Comprador atualizado', {
+                description: `${updated.name} foi salvo com sucesso.`,
+            })
             onUpdate(updated)
         })
     }
 
     const handleDeleteConfirm = () => {
         vm.confirmDelete(() => {
+            toast.success('Comprador removido', {
+                description: `${buyer.name} foi excluido.`,
+            })
             setShowDeleteConfirm(false)
             onDelete(buyer.id)
             onClose()

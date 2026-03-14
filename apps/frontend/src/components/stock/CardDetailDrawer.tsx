@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { Pencil, Trash2, X, Check, AlertCircle } from 'lucide-react'
+import { toast } from 'sonner'
 import {
     Sheet,
     SheetContent,
@@ -68,12 +69,18 @@ export function CardDetailDrawer({ item, isOpen, onClose, onUpdate, onDelete }: 
 
     const handleSave = () => {
         vm.saveEdit((updated) => {
+            toast.success('Carta atualizada', {
+                description: `${updated.card_name} foi salva com sucesso.`,
+            })
             onUpdate(updated)
         })
     }
 
     const handleDeleteConfirm = () => {
         vm.confirmDelete(() => {
+            toast.success('Carta removida do estoque', {
+                description: `${item.card_name} foi excluida.`,
+            })
             setShowDeleteConfirm(false)
             onDelete(item.id)
             onClose()

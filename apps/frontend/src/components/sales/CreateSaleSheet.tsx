@@ -4,6 +4,7 @@ import {
     ShoppingCart, AlertTriangle, ChevronRight, ChevronLeft,
     Check, X, Minus, Plus, User, FileText, ChevronDown,
 } from 'lucide-react'
+import { toast } from 'sonner'
 import {
     Sheet,
     SheetContent,
@@ -284,10 +285,16 @@ export function CreateSaleSheet({ isOpen, onClose, onSuccess }: CreateSaleSheetP
     }
 
     const handleSubmit = async () => {
+        const itemCount = vm.selectedItems.length
         const ok = await vm.submitSale()
         if (ok) {
+            toast.success('Venda registrada com sucesso', {
+                description: `${itemCount} ${itemCount === 1 ? 'carta vendida' : 'cartas vendidas'}.`,
+            })
             handleClose()
             onSuccess()
+        } else if (vm.error) {
+            toast.error('Erro ao registrar venda', { description: vm.error })
         }
     }
 

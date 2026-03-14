@@ -16,6 +16,7 @@ import {
     SelectValue,
 } from '@/components/ui/select';
 import { AlertCircle, DollarSign, Hash, Check } from 'lucide-react';
+import { toast } from 'sonner';
 import type { ScryfallCard } from '@/types/scryfall';
 import type { CardCondition } from '@/models/Stock';
 import { useAddStockViewModel } from '@/viewmodels/useAddStockViewModel';
@@ -60,8 +61,13 @@ export function AddStockSheet({ card, isOpen, onClose, onSuccess }: AddStockShee
     const handleSave = async () => {
         const success = await vm.saveStockItem();
         if (success) {
+            toast.success('Carta adicionada ao estoque', {
+                description: `${displayCard?.name} foi cadastrada com sucesso.`,
+            });
             onSuccess?.();
             onClose();
+        } else if (vm.error) {
+            toast.error('Erro ao cadastrar carta', { description: vm.error });
         }
     };
 

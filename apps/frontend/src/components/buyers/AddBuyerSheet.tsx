@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { AlertCircle, Check, User } from 'lucide-react'
+import { toast } from 'sonner'
 import { useAddBuyerViewModel } from '@/viewmodels/useAddBuyerViewModel'
 import type { BackendBuyer } from '@/types/buyer'
 
@@ -27,6 +28,9 @@ export function AddBuyerSheet({ isOpen, onClose, onSuccess }: AddBuyerSheetProps
 
     const handleSave = () => {
         vm.saveBuyer((created) => {
+            toast.success('Comprador cadastrado', {
+                description: `${created.name} foi adicionado com sucesso.`,
+            })
             onSuccess?.(created)
             handleClose()
         })

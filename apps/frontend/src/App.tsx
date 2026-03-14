@@ -10,12 +10,14 @@ import { SalesListView } from './components/sales/SalesListView'
 import { TradeAnalyzerView } from './components/trade/TradeAnalyzerView'
 import { CollectionBySetView } from './components/stock/CollectionBySetView'
 import { ThemeProvider } from '@/components/theme-provider'
+import { Toaster } from '@/components/ui/sonner'
 
 function App() {
   const [currentView, setCurrentView] = useState<AppView>('dashboard')
 
   return (
     <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
+      <Toaster position="top-right" richColors />
       <TooltipProvider>
         <SidebarProvider>
           <div className="flex bg-bg-base h-screen text-text-primary overflow-hidden w-full">
