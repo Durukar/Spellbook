@@ -120,6 +120,7 @@ export function TransactionDashboard({ onNavigate }: TransactionDashboardProps) 
                             onClick={() => onNavigate?.('search')}
                             className="w-9 h-9 rounded-xl bg-brand-500 text-white flex items-center justify-center hover:bg-brand-400 transition-colors shadow-lg shadow-brand-500/20"
                             title="Buscar carta para adicionar ao estoque"
+                            aria-label="Adicionar Carta"
                         >
                             <Plus size={16} />
                         </button>
@@ -133,18 +134,20 @@ export function TransactionDashboard({ onNavigate }: TransactionDashboardProps) 
                     </div>
                 </div>
                 <div className="flex items-center gap-3 text-sm">
-                    <button
-                        className="relative w-56 text-left"
+                    <div
+                        className="relative w-56 text-left cursor-pointer"
                         onClick={() => onNavigate?.('search')}
                     >
                         <Search className="absolute left-3 top-2 text-text-muted" size={14} />
-                        <div className="w-full bg-bg-card border border-border-subtle rounded-xl py-1.5 pl-9 pr-12 text-text-muted text-sm hover:border-border-highlight transition-colors">
-                            Buscar cartas...
-                        </div>
+                        <input
+                            readOnly
+                            placeholder="Buscar cartas..."
+                            className="w-full bg-bg-card border border-border-subtle rounded-xl py-1.5 pl-9 pr-12 text-text-muted text-sm hover:border-border-highlight transition-colors cursor-pointer focus:outline-none"
+                        />
                         <div className="absolute right-2 top-1.5 flex items-center gap-1 border border-border-highlight rounded px-1.5 py-0.5 bg-bg-sidebar">
                             <span className="text-[10px] text-text-secondary">&#8984; K</span>
                         </div>
-                    </button>
+                    </div>
                     <button className="w-9 h-9 rounded-xl bg-bg-card border border-border-subtle flex items-center justify-center text-text-secondary hover:text-text-primary transition-colors relative">
                         <Bell size={16} />
                         <span className="absolute top-2 right-2.5 w-1.5 h-1.5 rounded-full bg-red-400"></span>
@@ -166,6 +169,16 @@ export function TransactionDashboard({ onNavigate }: TransactionDashboardProps) 
                         </p>
                     </div>
                     <div className="flex items-center gap-2">
+                        {(!stats || stats.collectionCount === 0) && (
+                            <Button
+                                variant="outline"
+                                className="rounded-lg border-border-subtle text-xs font-medium h-8 bg-bg-card text-text-secondary hover:text-text-primary gap-1.5"
+                                onClick={() => onNavigate?.('search')}
+                                aria-label="Comecar a Colecionar"
+                            >
+                                <Plus size={14} /> Comecar a Colecionar
+                            </Button>
+                        )}
                         <Button
                             variant="outline"
                             className="rounded-lg border-border-subtle text-xs font-medium h-8 bg-bg-card text-text-secondary hover:text-text-primary gap-1.5"
@@ -281,7 +294,7 @@ export function TransactionDashboard({ onNavigate }: TransactionDashboardProps) 
                                 ) : (
                                     <div className="mt-auto flex flex-col items-center justify-center gap-2 text-center py-2">
                                         <p className="text-xs text-text-muted">Sua colecao esta vazia.</p>
-                                        <Button
+                                                        <Button
                                             variant="outline"
                                             className="rounded-lg border-border-subtle text-xs h-7 bg-bg-base text-text-secondary hover:text-text-primary gap-1"
                                             onClick={() => onNavigate?.('search')}
