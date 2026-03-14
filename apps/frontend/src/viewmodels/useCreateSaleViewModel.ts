@@ -39,6 +39,8 @@ export function useCreateSaleViewModel() {
     const hasStopLossViolation = stopLossItems.length > 0
 
     function addItem(stockItem: BackendStockItem) {
+        const purchasePrice = Number(stockItem.purchase_price)
+
         setSelectedItems((prev) => {
             if (prev.some((i) => i.stock_item_id === stockItem.id)) return prev
             return [
@@ -50,8 +52,8 @@ export function useCreateSaleViewModel() {
                     image_url: stockItem.image_url,
                     condition: stockItem.condition,
                     is_foil: stockItem.is_foil,
-                    purchase_price: Number(stockItem.purchase_price),
-                    sale_price: Number(stockItem.purchase_price),
+                    purchase_price: purchasePrice,
+                    sale_price: purchasePrice,
                     quantity: 1,
                     max_quantity: stockItem.quantity,
                 },

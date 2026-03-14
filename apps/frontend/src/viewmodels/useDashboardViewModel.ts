@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
 import { scryfallService } from '@/services/scryfallService';
 import { apiService } from '@/services/apiService';
-import { currencyService } from '@/services/currencyService';
 import type { SaleStats, BackendSale } from '@/types/sale';
 import type { BackendStockItem } from '@/types/stock';
 
@@ -36,7 +35,6 @@ export interface DashboardStats {
     topCards: BackendStockItem[];
     buyersCount: number;
     recentSales: BackendSale[];
-    usdToBrlRate: number;
 }
 
 const CONDITION_COLORS: Record<string, string> = {
@@ -59,13 +57,12 @@ export function useDashboardViewModel() {
     useEffect(() => {
         async function load() {
             try {
-                const [setList, saleStatsData, stockData, salesData, buyersData, usdRateResult] = await Promise.allSettled([
+                const [setList, saleStatsData, stockData, salesData, buyersData] = await Promise.allSettled([
                     scryfallService.getSets(),
                     apiService.getSaleStats(),
                     apiService.listStockItems(),
                     apiService.listSales(),
                     apiService.listBuyers(),
-                    currencyService.getUsdToBrl(),
                 ]);
 
                 if (saleStatsData.status === 'fulfilled') {
@@ -75,8 +72,6 @@ export function useDashboardViewModel() {
                 if (setList.status === 'rejected') {
                     throw new Error('Falha ao carregar dados do catalogo Scryfall.');
                 }
-
-                const usdToBrlRate = usdRateResult.status === 'fulfilled' ? usdRateResult.value : 5.80;
 
                 const allSets = setList.value.data;
 
@@ -108,15 +103,12 @@ export function useDashboardViewModel() {
                     cards: s.card_count,
                 }));
 
-                // Dados reais do estoque — converte USD para BRL
                 const stockItems = stockData.status === 'fulfilled' ? stockData.value : [];
                 const collectionCount = stockItems.reduce((sum, item) => sum + item.quantity, 0);
-                const collectionValueBRL = stockItems.reduce((sum, item) => {
-                    const valueInBrl = item.price_currency === 'USD'
-                        ? item.purchase_price * item.quantity * usdToBrlRate
-                        : item.purchase_price * item.quantity;
-                    return sum + valueInBrl;
-                }, 0);
+                const collectionValueBRL = stockItems.reduce(
+                    (sum, item) => sum + item.purchase_price * item.quantity,
+                    0
+                );
 
                 const foilCount = stockItems
                     .filter((item) => item.is_foil)
@@ -163,7 +155,6 @@ export function useDashboardViewModel() {
                     topCards,
                     buyersCount,
                     recentSales,
-                    usdToBrlRate,
                 });
             } catch {
                 setError('Falha ao carregar dados do catalogo Scryfall.');

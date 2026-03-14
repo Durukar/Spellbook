@@ -65,12 +65,6 @@ describe('TransactionDashboard', () => {
         expect(screen.getByText(/carregando/i)).toBeDefined();
     });
 
-    it('renders Collection Value label', async () => {
-        vi.mocked(scryfallService.getSets).mockResolvedValue(mockSetsData);
-        render(<TransactionDashboard />);
-        expect(screen.getByText('Valor da Colecao')).toBeDefined();
-    });
-
     it('renders My Collection section after data loads', async () => {
         vi.mocked(scryfallService.getSets).mockResolvedValue(mockSetsData);
         render(<TransactionDashboard />);

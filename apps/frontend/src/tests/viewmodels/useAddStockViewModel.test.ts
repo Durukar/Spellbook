@@ -53,7 +53,7 @@ describe('useAddStockViewModel', () => {
     it('should initialize with default values based on the provided card', () => {
         const { result } = renderHook(() => useAddStockViewModel(mockCard));
 
-        expect(result.current.price).toBe('15.50');
+        expect(result.current.price).toBe('');
         expect(result.current.condition).toBe('NM');
         expect(result.current.quantity).toBe('1');
         expect(result.current.isLoading).toBe(false);
@@ -90,7 +90,7 @@ describe('useAddStockViewModel', () => {
         });
     });
 
-    it('should update price when a different edition is selected', async () => {
+    it('should update selected card when a different edition is selected', async () => {
         const { result } = renderHook(() => useAddStockViewModel(mockCard));
 
         act(() => {
@@ -98,11 +98,14 @@ describe('useAddStockViewModel', () => {
         });
 
         expect(result.current.selectedCard?.set_name).toBe('Beta');
-        expect(result.current.price).toBe('45.00');
     });
 
     it('should save the stock item correctly', async () => {
         const { result } = renderHook(() => useAddStockViewModel(mockCard));
+
+        act(() => {
+            result.current.setPrice('15.50');
+        });
 
         let successResult = false;
 
@@ -118,7 +121,6 @@ describe('useAddStockViewModel', () => {
             setName: 'Alpha',
             imageUrl: 'http://example.com/bolt.jpg',
             purchasePrice: 15.50,
-            priceCurrency: 'USD',
             condition: 'NM',
             quantity: 1,
         });

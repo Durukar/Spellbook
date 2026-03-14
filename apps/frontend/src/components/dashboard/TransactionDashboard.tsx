@@ -114,11 +114,6 @@ export function TransactionDashboard({ onNavigate }: TransactionDashboardProps) 
                                     ? stats.collectionValueBRL.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
                                     : '—'}
                             </span>
-                            {stats?.usdToBrlRate ? (
-                                <span className="text-[10px] text-text-muted border-l border-border-subtle pl-2">
-                                    1 USD = {stats.usdToBrlRate.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
-                                </span>
-                            ) : null}
                         </div>
                     </div>
                     <div className="flex items-center gap-2">
