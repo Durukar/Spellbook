@@ -1,5 +1,27 @@
 export type PaymentMethod = 'pix' | 'dinheiro' | 'fiado' | 'cartao' | 'troca'
 
+export type ShippingStatus =
+  | 'pending_shipment'
+  | 'shipped'
+  | 'in_transit'
+  | 'delivered'
+  | 'returned'
+
+export interface ShipmentEvent {
+  id: string
+  sale_id: string
+  event_code: string
+  description: string
+  location: string | null
+  occurred_at: string
+  created_at: string
+}
+
+export interface AddTrackingPayload {
+  tracking_code: string
+  carrier: string
+}
+
 export interface BackendSaleItem {
   id: string
   sale_id: string
@@ -26,6 +48,12 @@ export interface BackendSale {
   created_at: string
   updated_at: string
   items: BackendSaleItem[]
+  tracking_code?: string | null
+  carrier?: string | null
+  shipping_status?: ShippingStatus
+  shipped_at?: string | null
+  delivered_at?: string | null
+  shipment_events?: ShipmentEvent[]
 }
 
 export interface SaleItemPayload {

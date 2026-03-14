@@ -1,6 +1,6 @@
 import type { Context } from 'hono'
 import { saleService } from '../services/sale.service'
-import type { CreateSaleDto, PaymentMethod } from '../types/sale'
+import type { CreateSaleDto, PaymentMethod, AddTrackingDto } from '../types/sale'
 
 const VALID_PAYMENT_METHODS: PaymentMethod[] = ['pix', 'dinheiro', 'fiado', 'cartao', 'troca']
 
@@ -48,5 +48,55 @@ export const saleController = {
   async getStats(c: Context) {
     const stats = await saleService.getStats()
     return c.json(stats)
+  },
+
+  async removeTracking(c: Context) {
+    const id = c.req.param('id')
+    if (!id) return c.json({ error: 'ID obrigatorio.' }, 400)
+
+    try {
+      const sale = await saleService.removeTracking(id)
+      if (!sale) return c.json({ error: 'Venda nao encontrada.' }, 404)
+      return c.json(sale)
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Erro ao remover rastreio.'
+      return c.json({ error: message }, 422)
+    }
+  },
+
+  async addTracking(c: Context) {
+    const id = c.req.param('id')
+    if (!id) return c.json({ error: 'ID obrigatorio.' }, 400)
+
+    const body = await c.req.json<AddTrackingDto>()
+    if (!body.tracking_code?.trim()) {
+      return c.json({ error: 'Codigo de rastreio obrigatorio.' }, 400)
+    }
+    if (!body.carrier?.trim()) {
+      return c.json({ error: 'Transportadora obrigatoria.' }, 400)
+    }
+
+    try {
+      const sale = await saleService.addTracking(id, body)
+      if (!sale) return c.json({ error: 'Venda nao encontrada.' }, 404)
+      return c.json(sale)
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Erro ao salvar rastreio.'
+      return c.json({ error: message }, 422)
+    }
+  },
+
+  async refreshTracking(c: Context) {
+    const id = c.req.param('id')
+    if (!id) return c.json({ error: 'ID obrigatorio.' }, 400)
+
+    try {
+      const sale = await saleService.refreshTracking(id)
+      if (!sale) return c.json({ error: 'Venda ou codigo de rastreio nao encontrado.' }, 404)
+      return c.json(sale)
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Erro ao buscar rastreio.'
+      return c.json({ error: message }, 502)
+    }
   },
 }

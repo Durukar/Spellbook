@@ -1,10 +1,11 @@
 import { useState } from 'react'
 import { motion } from 'framer-motion'
-import { ShoppingCart, User } from 'lucide-react'
+import { ShoppingCart } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { useSalesListViewModel } from '@/viewmodels/useSalesListViewModel'
 import { CreateSaleSheet } from '@/components/sales/CreateSaleSheet'
 import { SaleDetailDrawer } from '@/components/sales/SaleDetailDrawer'
+import { ShippingStatusBadge } from '@/components/sales/ShippingStatusBadge'
 import type { BackendSale } from '@/types/sale'
 
 const PAYMENT_LABELS: Record<string, string> = {
@@ -28,6 +29,7 @@ function SaleRow({ sale, index, onClick }: { sale: BackendSale; index: number; o
     const total = Number(sale.total_amount).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
     const itemCount = sale.items?.length ?? 0
     const paymentColor = PAYMENT_COLORS[sale.payment_method] ?? 'text-text-muted bg-bg-muted border-border-subtle'
+    const showShippingBadge = sale.shipping_status && sale.shipping_status !== 'pending_shipment'
 
     return (
         <motion.div
@@ -58,7 +60,10 @@ function SaleRow({ sale, index, onClick }: { sale: BackendSale; index: number; o
                 </div>
             </div>
 
-            <div className="flex items-center gap-2 shrink-0">
+            <div className="flex items-center gap-2 shrink-0 flex-wrap justify-end">
+                {showShippingBadge && (
+                    <ShippingStatusBadge status={sale.shipping_status!} />
+                )}
                 <span className={`text-xs font-bold px-2 py-0.5 rounded border ${paymentColor}`}>
                     {PAYMENT_LABELS[sale.payment_method] ?? sale.payment_method}
                 </span>
@@ -163,6 +168,10 @@ export function SalesListView() {
                     sale={selectedSale}
                     isOpen={!!selectedSale}
                     onClose={() => setSelectedSale(null)}
+                    onUpdate={(updated) => {
+                        setSelectedSale(updated)
+                        refresh()
+                    }}
                 />
             )}
         </>

@@ -1,7 +1,7 @@
 import type { ScryfallCardList } from '@/types/scryfall'
 import type { BackendStockItem, CreateStockItemPayload, UpdateStockItemPayload } from '@/types/stock'
 import type { BackendBuyer, CreateBuyerPayload, UpdateBuyerPayload } from '@/types/buyer'
-import type { BackendSale, CreateSalePayload, SaleStats } from '@/types/sale'
+import type { BackendSale, CreateSalePayload, SaleStats, AddTrackingPayload } from '@/types/sale'
 
 const API_URL = import.meta.env.VITE_API_URL ?? 'http://localhost:8787'
 
@@ -95,5 +95,21 @@ export const apiService = {
 
     getSaleStats(): Promise<SaleStats> {
         return request<SaleStats>('/api/v1/sales/stats')
+    },
+
+    addTracking(id: string, payload: AddTrackingPayload): Promise<BackendSale> {
+        return request<BackendSale>(`/api/v1/sales/${id}/tracking`, {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload),
+        })
+    },
+
+    getTracking(id: string): Promise<BackendSale> {
+        return request<BackendSale>(`/api/v1/sales/${id}/tracking`)
+    },
+
+    removeTracking(id: string): Promise<BackendSale> {
+        return request<BackendSale>(`/api/v1/sales/${id}/tracking`, { method: 'DELETE' })
     },
 }

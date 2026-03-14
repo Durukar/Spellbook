@@ -1,5 +1,115 @@
 import { db } from '../db/client'
-import type { Sale, SaleItem, CreateSaleDto, SaleStats } from '../types/sale'
+import type { Sale, SaleItem, CreateSaleDto, SaleStats, ShipmentEvent, ShippingStatus, AddTrackingDto } from '../types/sale'
+
+interface SeuRastreioResponse {
+  codigo: string
+  status: string
+  success: boolean
+  eventoMaisRecente?: {
+    codigo: string
+    descricao: string
+    detalhe?: string
+    data: string
+    local?: string
+  }
+}
+
+interface ParsedEvent {
+  codigo: string
+  description: string
+  location: string | null
+  occurred_at: Date
+}
+
+const DESCRIPTION_TO_CODE: Record<string, string> = {
+  'objeto postado': 'OL',
+  'objeto em transferência': 'RO',
+  'objeto em trânsito': 'RO',
+  'objeto saiu para entrega': 'OEC',
+  'objeto saiu para entrega ao destinatário': 'OEC',
+  'objeto entregue ao destinatário': 'BDE',
+  'entrega realizada': 'BDI',
+  'tentativa de entrega não efetuada': 'BDR',
+  'objeto devolvido': 'DEV',
+  'objeto aguardando retirada': 'CMR',
+  'objeto encaminhado': 'RO',
+}
+
+function descriptionToCode(description: string): string {
+  const normalized = description.toLowerCase().trim()
+  for (const [key, code] of Object.entries(DESCRIPTION_TO_CODE)) {
+    if (normalized.startsWith(key)) return code
+  }
+  return 'INFO'
+}
+
+function parsePtBrDate(dateStr: string): Date | null {
+  // Format: "13/03/2026, 07:34"
+  const m = dateStr.match(/(\d{2})\/(\d{2})\/(\d{4}),\s*(\d{2}):(\d{2})/)
+  if (!m) return null
+  return new Date(`${m[3]}-${m[2]}-${m[1]}T${m[4]}:${m[5]}:00`)
+}
+
+function stripHtmlComments(s: string): string {
+  return s.replace(/<!--.*?-->/g, '').trim()
+}
+
+async function fetchFullHistory(trackingCode: string): Promise<ParsedEvent[]> {
+  const response = await fetch(
+    `https://seurastreio.com.br/objetos/${trackingCode}`,
+    {
+      headers: { 'User-Agent': 'Mozilla/5.0' },
+      signal: AbortSignal.timeout(25000),
+    }
+  )
+  if (!response.ok) return []
+
+  const html = await response.text()
+  const events: ParsedEvent[] = []
+
+  // Each event card contains an h4 with the description
+  const cardRegex = /<h4[^>]*font-medium[^>]*>([^<]+)<\/h4>([\s\S]*?)(?=<h4[^>]*font-medium|<\/main|$)/g
+  let match: RegExpExecArray | null
+
+  while ((match = cardRegex.exec(html)) !== null) {
+    const description = match[1].trim()
+    const block = match[2]
+
+    const dateMatch = block.match(/<span[^>]*>(\d{2}\/\d{2}\/\d{4},\s*\d{2}:\d{2})<\/span>/)
+    if (!dateMatch) continue
+    const occurred_at = parsePtBrDate(dateMatch[1])
+    if (!occurred_at) continue
+
+    // Origin: <span>CITY<!-- -->, <!-- -->UF</span> after map-pin icon
+    const originMatch = block.match(/lucide-map-pin[\s\S]*?<span[^>]*>([\s\S]*?)<\/span>/)
+    const origin = originMatch ? stripHtmlComments(originMatch[1]).replace(/\s+/g, ' ') : null
+
+    // Destination: <div class="mt-1.5...">Destino: City<!-- -->, <!-- -->UF</div>
+    const destMatch = block.match(/mt-1\.5[^>]*>Destino:?\s*([\s\S]*?)<\/div>/)
+    const dest = destMatch ? stripHtmlComments(destMatch[1]).replace(/\s+/g, ' ').trim() : null
+
+    const location = origin && dest
+      ? `de ${origin} para ${dest}`
+      : (origin ?? null)
+
+    events.push({
+      codigo: descriptionToCode(description),
+      description,
+      location,
+      occurred_at,
+    })
+  }
+
+  return events
+}
+
+function mapCorreiosCodeToStatus(code: string): ShippingStatus {
+  const DELIVERED = ['BDE', 'BDI']
+  const RETURNED = ['BDR', 'DEV']
+  if (DELIVERED.includes(code)) return 'delivered'
+  if (RETURNED.includes(code)) return 'returned'
+  return 'in_transit'
+}
 
 export const saleService = {
   async create(dto: CreateSaleDto): Promise<Sale> {
@@ -132,7 +242,148 @@ export const saleService = {
       [id]
     )
 
-    return { ...saleResult.rows[0], items: itemsResult.rows }
+    const eventsResult = await db.query<ShipmentEvent>(
+      'SELECT * FROM shipment_events WHERE sale_id = $1 ORDER BY occurred_at DESC',
+      [id]
+    )
+
+    return { ...saleResult.rows[0], items: itemsResult.rows, shipment_events: eventsResult.rows }
+  },
+
+  async removeTracking(id: string): Promise<Sale | null> {
+    const client = await db.connect()
+    try {
+      await client.query('BEGIN')
+      await client.query('DELETE FROM shipment_events WHERE sale_id = $1', [id])
+      const result = await client.query<Sale>(
+        `UPDATE sales
+         SET tracking_code = NULL,
+             carrier = NULL,
+             shipping_status = 'pending_shipment',
+             shipped_at = NULL,
+             delivered_at = NULL,
+             updated_at = NOW()
+         WHERE id = $1
+         RETURNING *`,
+        [id]
+      )
+      await client.query('COMMIT')
+      if (!result.rows[0]) return null
+      return { ...result.rows[0], items: [], shipment_events: [] }
+    } catch (err) {
+      await client.query('ROLLBACK')
+      throw err
+    } finally {
+      client.release()
+    }
+  },
+
+  async addTracking(id: string, dto: AddTrackingDto): Promise<Sale | null> {
+    const result = await db.query<Sale>(
+      `UPDATE sales
+       SET tracking_code = $1,
+           carrier = $2,
+           shipping_status = 'shipped',
+           shipped_at = NOW(),
+           updated_at = NOW()
+       WHERE id = $3
+       RETURNING *`,
+      [dto.tracking_code.trim().toUpperCase(), dto.carrier.trim(), id]
+    )
+    return result.rows[0] ?? null
+  },
+
+  async refreshTracking(id: string): Promise<Sale | null> {
+    const saleResult = await db.query<Sale>('SELECT * FROM sales WHERE id = $1', [id])
+    const sale = saleResult.rows[0]
+    if (!sale || !sale.tracking_code) return null
+
+    const apiKey = process.env.SEURASTREIO_API_KEY
+    if (!apiKey) {
+      throw new Error('Chave da API de rastreio nao configurada. Adicione SEURASTREIO_API_KEY no .env')
+    }
+
+    let data: SeuRastreioResponse
+    try {
+      const response = await fetch(
+        `https://seurastreio.com.br/api/public/rastreio/${sale.tracking_code}`,
+        {
+          headers: {
+            'Accept': 'application/json',
+            'Authorization': `Bearer ${apiKey}`,
+          },
+          signal: AbortSignal.timeout(25000),
+        }
+      )
+      if (response.status === 401) {
+        throw new Error('API key invalida. Verifique SEURASTREIO_API_KEY no .env')
+      }
+      if (response.status === 404) {
+        throw new Error('Codigo de rastreio nao encontrado nos Correios.')
+      }
+      if (!response.ok) {
+        throw new Error(`Erro ao consultar rastreio (HTTP ${response.status}). Tente novamente.`)
+      }
+      data = await response.json() as SeuRastreioResponse
+    } catch (err) {
+      if (err instanceof Error) throw err
+      throw new Error('Nao foi possivel consultar o rastreio. Verifique sua conexao e tente novamente.')
+    }
+
+    const eventoMaisRecente = data?.eventoMaisRecente
+    if (!eventoMaisRecente) return this.findById(id)
+
+    // Fetch full history from page (RSC), fallback to just the latest event
+    const historyEvents = await fetchFullHistory(sale.tracking_code).catch(() => [])
+
+    // Build final event list: start with full history, override latest with API data (has correct code)
+    const allEvents: ParsedEvent[] = historyEvents.length > 0 ? historyEvents : [{
+      codigo: eventoMaisRecente.codigo,
+      description: [eventoMaisRecente.descricao, eventoMaisRecente.detalhe].filter(Boolean).join(' - '),
+      location: eventoMaisRecente.local ?? null,
+      occurred_at: new Date(eventoMaisRecente.data.replace(' ', 'T')),
+    }]
+
+    // Replace the most recent event's code with the accurate one from the API
+    if (allEvents.length > 0) {
+      allEvents[0].codigo = eventoMaisRecente.codigo
+    }
+
+    const client = await db.connect()
+    try {
+      await client.query('BEGIN')
+
+      // Delete and reinsert to avoid duplicate events from timestamp precision differences
+      await client.query('DELETE FROM shipment_events WHERE sale_id = $1', [id])
+
+      for (const ev of allEvents) {
+        await client.query(
+          `INSERT INTO shipment_events (sale_id, event_code, description, location, occurred_at)
+           VALUES ($1, $2, $3, $4, $5)`,
+          [id, ev.codigo, ev.description, ev.location, ev.occurred_at]
+        )
+      }
+
+      const newStatus = mapCorreiosCodeToStatus(eventoMaisRecente.codigo)
+
+      await client.query(
+        `UPDATE sales
+         SET shipping_status = $1,
+             delivered_at = CASE WHEN $2 = 'delivered' AND delivered_at IS NULL THEN NOW() ELSE delivered_at END,
+             updated_at = NOW()
+         WHERE id = $3`,
+        [newStatus, newStatus, id]
+      )
+
+      await client.query('COMMIT')
+    } catch (err) {
+      await client.query('ROLLBACK')
+      throw err
+    } finally {
+      client.release()
+    }
+
+    return this.findById(id)
   },
 
   async getStats(): Promise<SaleStats> {
