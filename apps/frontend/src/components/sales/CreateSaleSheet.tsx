@@ -312,7 +312,7 @@ export function CreateSaleSheet({ isOpen, onClose, onSuccess }: CreateSaleSheetP
     return (
         <Sheet open={isOpen} onOpenChange={(open) => !open && handleClose()}>
             <SheetContent
-                className="w-full sm:max-w-lg p-0 flex flex-col bg-[#0d0d0d] h-full border-l border-border-subtle shadow-2xl overflow-hidden"
+                className="w-full sm:max-w-lg p-0 flex flex-col bg-[#0d0d0d] h-full border-l border-border-subtle shadow-2xl overflow-hidden [&>button]:hidden"
                 side="right"
             >
                 <SheetHeader className="px-6 py-4 border-b border-border-subtle shrink-0">
