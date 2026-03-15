@@ -187,7 +187,7 @@ describe('useAddStockViewModel - acquisition_type', () => {
         expect(result.current.acquisitionType).toBe('accumulated');
     });
 
-    it('quando acquisitionType e accumulated, salva com purchasePrice zero independente do preco informado', async () => {
+    it('quando acquisitionType e accumulated com valor estimado, salva com o preco informado', async () => {
         const { result } = renderHook(() => useAddStockViewModel(mockCard));
 
         act(() => {
@@ -200,12 +200,29 @@ describe('useAddStockViewModel - acquisition_type', () => {
         expect(stockService.addStockItem).toHaveBeenCalledWith(
             expect.objectContaining({
                 acquisitionType: 'accumulated',
+                purchasePrice: 50.00,
+            })
+        );
+    });
+
+    it('quando acquisitionType e accumulated sem preco, salva com purchasePrice zero', async () => {
+        const { result } = renderHook(() => useAddStockViewModel(mockCard));
+
+        act(() => {
+            result.current.setAcquisitionType('accumulated');
+        });
+
+        await act(async () => { await result.current.saveStockItem(); });
+
+        expect(stockService.addStockItem).toHaveBeenCalledWith(
+            expect.objectContaining({
+                acquisitionType: 'accumulated',
                 purchasePrice: 0,
             })
         );
     });
 
-    it('quando acquisitionType e gift, salva com purchasePrice zero', async () => {
+    it('quando acquisitionType e gift com valor estimado, salva com o preco informado', async () => {
         const { result } = renderHook(() => useAddStockViewModel(mockCard));
 
         act(() => {
@@ -218,7 +235,7 @@ describe('useAddStockViewModel - acquisition_type', () => {
         expect(stockService.addStockItem).toHaveBeenCalledWith(
             expect.objectContaining({
                 acquisitionType: 'gift',
-                purchasePrice: 0,
+                purchasePrice: 30.00,
             })
         );
     });

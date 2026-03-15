@@ -59,7 +59,7 @@ export function useAddStockViewModel(initialCard: ScryfallCard | null) {
                 cardName: selectedCard.name,
                 setName: selectedCard.set_name,
                 imageUrl: selectedCard.image_uris?.normal ?? selectedCard.card_faces?.[0]?.image_uris?.normal ?? '',
-                purchasePrice: isPurchase ? parseFloat(price) || 0 : 0,
+                purchasePrice: parseFloat(price) || 0,
                 condition,
                 quantity: parseInt(quantity) || 1,
                 ...(isFoil ? { isFoil } : {}),

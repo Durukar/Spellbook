@@ -245,9 +245,12 @@ export function CardDetailDrawer({ item, isOpen, onClose, onUpdate, onDelete }: 
                                 )}
                             </div>
 
-                            {vm.editForm.acquisition_type === 'purchase' || !vm.isEditing ? (
                             <div className="flex items-center justify-between gap-4">
-                                <span className="text-sm text-text-muted">Preco de Compra</span>
+                                <span className="text-sm text-text-muted">
+                                    {(vm.isEditing ? vm.editForm.acquisition_type : item.acquisition_type ?? 'purchase') === 'purchase'
+                                        ? 'Valor Pago'
+                                        : 'Valor Estimado'}
+                                </span>
                                 {vm.isEditing ? (
                                     <Input
                                         type="number"
@@ -261,7 +264,6 @@ export function CardDetailDrawer({ item, isOpen, onClose, onUpdate, onDelete }: 
                                     <span className="text-sm font-semibold text-text-primary">{price}</span>
                                 )}
                             </div>
-                            ) : null}
 
                             <div className="flex items-center justify-between">
                                 <span className="text-sm text-text-muted">Data de Aquisicao</span>

@@ -32,17 +32,11 @@ describe('AppSidebar', () => {
     it('renders navigation items', () => {
         renderSidebar();
         expect(screen.getByText('Dashboard')).toBeDefined();
-        expect(screen.getByText('Transacoes')).toBeDefined();
-        expect(screen.getByText('Colecao')).toBeDefined();
+        expect(screen.getByText('Buscar Cartas')).toBeDefined();
+        expect(screen.getByText('Registro de Vendas')).toBeDefined();
     });
 
-    it('renders the settings and help items', () => {
-        renderSidebar();
-        expect(screen.getByText('Configuracoes')).toBeDefined();
-        expect(screen.getByText('Ajuda e FAQ')).toBeDefined();
-    });
-
-    it('renders the sidebar trigger button', () => {
+it('renders the sidebar trigger button', () => {
         renderSidebar();
         const trigger = screen.getByRole('button', { name: /toggle sidebar/i });
         expect(trigger).toBeDefined();

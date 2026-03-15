@@ -219,13 +219,12 @@ export function AddStockSheet({ card, isOpen, onClose, onSuccess }: AddStockShee
 
                     {/* Dados financeiros */}
                     <div className="space-y-4">
-                        {vm.acquisitionType === 'purchase' && (
                         <div className="flex flex-col gap-2">
                             <Label
                                 htmlFor="price-drawer"
                                 className="text-xs font-semibold text-text-muted uppercase tracking-wider"
                             >
-                                Preco Pago (R$)
+                                {vm.acquisitionType === 'purchase' ? 'Valor Pago (R$)' : 'Valor Estimado (R$)'}
                             </Label>
                             <div className="relative">
                                 <div className="absolute inset-y-0 left-3 flex items-center pointer-events-none text-text-muted">
@@ -242,8 +241,12 @@ export function AddStockSheet({ card, isOpen, onClose, onSuccess }: AddStockShee
                                     className="pl-9 h-10 border-border-subtle font-mono text-text-primary bg-bg-elevated"
                                 />
                             </div>
+                            {vm.acquisitionType !== 'purchase' && (
+                                <p className="text-[11px] text-text-muted">
+                                    Opcional. Use para registrar o valor de mercado da carta.
+                                </p>
+                            )}
                         </div>
-                        )}
 
                         <div className="flex flex-col gap-2">
                             <Label

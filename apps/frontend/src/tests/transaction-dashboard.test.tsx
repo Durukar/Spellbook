@@ -1,136 +1,134 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
 import { TransactionDashboard } from '@/components/dashboard/TransactionDashboard';
-import { scryfallService } from '@/services/scryfallService';
+import { apiService } from '@/services/apiService';
 
-vi.mock('@/services/scryfallService', () => ({
-    scryfallService: {
-        getSets: vi.fn(),
+vi.mock('@/services/apiService', () => ({
+    apiService: {
+        getSaleStats: vi.fn(),
+        listStockItems: vi.fn(),
+        listSales: vi.fn(),
+        listBuyers: vi.fn(),
     },
 }));
 
-const mockSetsData = {
-    object: 'list' as const,
-    has_more: false,
-    data: [
-        {
-            id: 'set-1',
-            object: 'set' as const,
-            code: 'otj',
-            name: 'Outlaws of Thunder Junction',
-            set_type: 'expansion',
-            released_at: '2024-04-19',
-            card_count: 276,
-            digital: false,
-            uri: '',
-            scryfall_uri: '',
-            search_uri: '',
-            nonfoil_only: false,
-            foil_only: false,
-            icon_svg_uri: '',
-        },
-        {
-            id: 'set-2',
-            object: 'set' as const,
-            code: 'mkm',
-            name: 'Murders at Karlov Manor',
-            set_type: 'expansion',
-            released_at: '2024-02-09',
-            card_count: 286,
-            digital: false,
-            uri: '',
-            scryfall_uri: '',
-            search_uri: '',
-            nonfoil_only: false,
-            foil_only: false,
-            icon_svg_uri: '',
-        },
-    ],
+import type { BackendStockItem } from '@/types/stock';
+import type { SaleStats } from '@/types/sale';
+
+const mockStockItems: BackendStockItem[] = [
+    {
+        id: '1',
+        scryfall_id: 'abc',
+        card_name: 'Ragavan, Nimble Pilferer',
+        set_name: 'Modern Horizons 2',
+        image_url: 'https://example.com/ragavan.jpg',
+        purchase_price: 380,
+        purchase_date: '2024-01-15',
+        condition: 'NM',
+        quantity: 1,
+        is_foil: false,
+        created_at: '2024-01-15',
+    },
+    {
+        id: '2',
+        scryfall_id: 'def',
+        card_name: 'Wrenn and Six',
+        set_name: 'Modern Horizons 2',
+        image_url: 'https://example.com/wrenn.jpg',
+        purchase_price: 240,
+        purchase_date: '2024-02-10',
+        condition: 'NM',
+        quantity: 1,
+        is_foil: false,
+        created_at: '2024-02-10',
+    },
+];
+
+const mockSaleStats: SaleStats = {
+    total_revenue: 500,
+    total_cost: 300,
+    total_profit: 100,
+    total_discount: 20,
+    sales_count: 3,
+    stock_value: 620,
+    monthly_revenue: 200,
+    monthly_profit: 50,
+    monthly_discount: 5,
+    monthly_count: 1,
 };
 
 describe('TransactionDashboard', () => {
     beforeEach(() => {
         vi.clearAllMocks();
+        vi.mocked(apiService.getSaleStats).mockResolvedValue(mockSaleStats);
+        vi.mocked(apiService.listStockItems).mockResolvedValue(mockStockItems);
+        vi.mocked(apiService.listSales).mockResolvedValue([]);
+        vi.mocked(apiService.listBuyers).mockResolvedValue([]);
     });
 
-    it('renders the Dashboard heading', async () => {
-        vi.mocked(scryfallService.getSets).mockResolvedValue(mockSetsData);
+    it('renders the Dashboard heading', () => {
         render(<TransactionDashboard />);
         expect(screen.getByRole('heading', { name: /dashboard/i })).toBeDefined();
     });
 
     it('shows loading state initially', () => {
-        vi.mocked(scryfallService.getSets).mockReturnValue(new Promise(() => {}));
+        vi.mocked(apiService.listStockItems).mockReturnValue(new Promise(() => {}));
         render(<TransactionDashboard />);
         expect(screen.getByText(/carregando/i)).toBeDefined();
     });
 
     it('renders My Collection section after data loads', async () => {
-        vi.mocked(scryfallService.getSets).mockResolvedValue(mockSetsData);
         render(<TransactionDashboard />);
         await waitFor(() => expect(screen.getByText('Minha Colecao')).toBeDefined());
     });
 
-    it('renders Card Catalog section after data loads', async () => {
-        vi.mocked(scryfallService.getSets).mockResolvedValue(mockSetsData);
+    it('renders Evolucao do Patrimonio section after data loads', async () => {
         render(<TransactionDashboard />);
-        await waitFor(() => expect(screen.getByText('Catalogo de Cartas')).toBeDefined());
+        await waitFor(() => expect(screen.getByText('Evolucao do Patrimonio')).toBeDefined());
     });
 
-    it('renders Recent Expansions section after data loads', async () => {
-        vi.mocked(scryfallService.getSets).mockResolvedValue(mockSetsData);
+    it('renders Top Cartas do Estoque section after data loads', async () => {
         render(<TransactionDashboard />);
-        await waitFor(() => expect(screen.getByText('Expansoes Recentes')).toBeDefined());
+        await waitFor(() => expect(screen.getByText('Top Cartas do Estoque')).toBeDefined());
     });
 
-    it('renders a set name from Scryfall data', async () => {
-        vi.mocked(scryfallService.getSets).mockResolvedValue(mockSetsData);
+    it('renders a card name in top cards section', async () => {
         render(<TransactionDashboard />);
         await waitFor(() =>
-            expect(screen.getByText('Outlaws of Thunder Junction')).toBeDefined(),
+            expect(screen.getByText('Ragavan, Nimble Pilferer')).toBeDefined(),
         );
     });
 
     it('renders Add Card button', () => {
-        vi.mocked(scryfallService.getSets).mockResolvedValue(mockSetsData);
         render(<TransactionDashboard />);
         expect(screen.getByRole('button', { name: /adicionar carta/i })).toBeDefined();
     });
 
-    it('shows error message when fetch fails', async () => {
-        vi.mocked(scryfallService.getSets).mockRejectedValue(new Error('Network error'));
+    it('shows error message when stock API fails', async () => {
+        vi.mocked(apiService.listStockItems).mockRejectedValue(new Error('Network error'));
         render(<TransactionDashboard />);
         await waitFor(() => expect(screen.getByText(/falha/i)).toBeDefined());
     });
 
     it('renders the search input for cards', () => {
-        vi.mocked(scryfallService.getSets).mockResolvedValue(mockSetsData);
         render(<TransactionDashboard />);
         expect(screen.getByPlaceholderText(/buscar cartas/i)).toBeDefined();
     });
 
     it('renders Color Distribution label after data loads', async () => {
-        vi.mocked(scryfallService.getSets).mockResolvedValue(mockSetsData);
         render(<TransactionDashboard />);
         await waitFor(() => expect(screen.getByText('Distribuicao por Cor')).toBeDefined());
     });
 
-    it('renders Start Collecting button', async () => {
-        vi.mocked(scryfallService.getSets).mockResolvedValue(mockSetsData);
-        render(<TransactionDashboard />);
-        expect(screen.getByRole('button', { name: /comecar a colecionar/i })).toBeDefined();
-    });
-
-    it('renders Browse Now button in Card Scout section', async () => {
-        vi.mocked(scryfallService.getSets).mockResolvedValue(mockSetsData);
+    it('renders Start Collecting button when collection is empty', async () => {
+        vi.mocked(apiService.listStockItems).mockResolvedValue([]);
         render(<TransactionDashboard />);
         await waitFor(() =>
-            expect(screen.getByRole('button', { name: /explorar agora/i })).toBeDefined(),
+            expect(screen.getByRole('button', { name: /comecar a colecionar/i })).toBeDefined(),
         );
     });
 
     it('renders the subtitle for the dashboard', () => {
-        vi.mocked(scryfallService.getSets).mockResolvedValue(mockSetsData);
         render(<TransactionDashboard />);
         expect(
             screen.getByText(/visao geral da sua colecao magic/i),

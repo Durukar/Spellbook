@@ -1,18 +1,11 @@
 import { useState, useEffect } from 'react';
-import { scryfallService } from '@/services/scryfallService';
 import { apiService } from '@/services/apiService';
 import type { SaleStats, BackendSale } from '@/types/sale';
 import type { BackendStockItem } from '@/types/stock';
 
-export interface SetsByYear {
-    year: string;
-    cards: number;
-    sets: number;
-}
-
-export interface ExpansionChartEntry {
-    name: string;
-    cards: number;
+export interface PatrimonioEntry {
+    month: string;
+    valor: number;
 }
 
 export interface ConditionDistribution {
@@ -23,11 +16,7 @@ export interface ConditionDistribution {
 }
 
 export interface DashboardStats {
-    totalSets: number;
-    totalCardsInCatalog: number;
-    latestExpansionName: string;
-    recentExpansionChartData: ExpansionChartEntry[];
-    setsByYear: SetsByYear[];
+    patrimonioData: PatrimonioEntry[];
     collectionCount: number;
     collectionValueBRL: number;
     foilPercentage: number;
@@ -57,8 +46,7 @@ export function useDashboardViewModel() {
     useEffect(() => {
         async function load() {
             try {
-                const [setList, saleStatsData, stockData, salesData, buyersData] = await Promise.allSettled([
-                    scryfallService.getSets(),
+                const [saleStatsData, stockData, salesData, buyersData] = await Promise.allSettled([
                     apiService.getSaleStats(),
                     apiService.listStockItems(),
                     apiService.listSales(),
@@ -69,41 +57,12 @@ export function useDashboardViewModel() {
                     setSaleStats(saleStatsData.value);
                 }
 
-                if (setList.status === 'rejected') {
-                    throw new Error('Falha ao carregar dados do catalogo Scryfall.');
+                if (stockData.status === 'rejected') {
+                    throw new Error('Falha ao carregar dados do estoque.');
                 }
 
-                const allSets = setList.value.data;
+                const stockItems = stockData.value;
 
-                const recentExpansions = allSets
-                    .filter((s) => !s.digital && s.set_type === 'expansion')
-                    .sort((a, b) => b.released_at.localeCompare(a.released_at))
-                    .slice(0, 7);
-
-                const yearMap = new Map<string, { sets: number; cards: number }>();
-                allSets.forEach((s) => {
-                    if (!s.released_at || s.digital) return;
-                    const year = s.released_at.substring(0, 4);
-                    const current = yearMap.get(year) ?? { sets: 0, cards: 0 };
-                    yearMap.set(year, {
-                        sets: current.sets + 1,
-                        cards: current.cards + s.card_count,
-                    });
-                });
-
-                const setsByYear: SetsByYear[] = Array.from(yearMap.entries())
-                    .map(([year, data]) => ({ year, ...data }))
-                    .sort((a, b) => a.year.localeCompare(b.year))
-                    .slice(-10);
-
-                const totalCardsInCatalog = allSets.reduce((sum, s) => sum + s.card_count, 0);
-
-                const recentExpansionChartData: ExpansionChartEntry[] = recentExpansions.map((s) => ({
-                    name: s.code.toUpperCase(),
-                    cards: s.card_count,
-                }));
-
-                const stockItems = stockData.status === 'fulfilled' ? stockData.value : [];
                 const collectionCount = stockItems.reduce((sum, item) => sum + item.quantity, 0);
                 const collectionValueBRL = stockItems.reduce(
                     (sum, item) => sum + item.purchase_price * item.quantity,
@@ -134,8 +93,25 @@ export function useDashboardViewModel() {
                     }));
 
                 const topCards = [...stockItems]
-                    .sort((a, b) => b.purchase_price - a.purchase_price)
-                    .slice(0, 5);
+                    .sort((a, b) => b.purchase_price * b.quantity - a.purchase_price * a.quantity)
+                    .slice(0, 6);
+
+                const monthMap = new Map<string, number>();
+                stockItems.forEach((item) => {
+                    const d = new Date(item.purchase_date);
+                    const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+                    monthMap.set(key, (monthMap.get(key) ?? 0) + item.purchase_price * item.quantity);
+                });
+                let cumulative = 0;
+                const patrimonioData: PatrimonioEntry[] = Array.from(monthMap.entries())
+                    .sort(([a], [b]) => a.localeCompare(b))
+                    .map(([key]) => {
+                        const [year, month] = key.split('-');
+                        cumulative += monthMap.get(key)!;
+                        const label = new Date(Number(year), Number(month) - 1, 1)
+                            .toLocaleDateString('pt-BR', { month: 'short', year: '2-digit' });
+                        return { month: label, valor: cumulative };
+                    });
 
                 const buyersCount = buyersData.status === 'fulfilled' ? buyersData.value.length : 0;
 
@@ -143,11 +119,7 @@ export function useDashboardViewModel() {
                     salesData.status === 'fulfilled' ? salesData.value.slice(0, 6) : [];
 
                 setStats({
-                    totalSets: allSets.length,
-                    totalCardsInCatalog,
-                    latestExpansionName: recentExpansions[0]?.name ?? 'N/A',
-                    recentExpansionChartData,
-                    setsByYear,
+                    patrimonioData,
                     collectionCount,
                     collectionValueBRL,
                     foilPercentage,
@@ -157,7 +129,7 @@ export function useDashboardViewModel() {
                     recentSales,
                 });
             } catch {
-                setError('Falha ao carregar dados do catalogo Scryfall.');
+                setError('Falha ao carregar dados do estoque.');
             } finally {
                 setIsLoading(false);
             }

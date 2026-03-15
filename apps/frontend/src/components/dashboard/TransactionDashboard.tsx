@@ -6,18 +6,15 @@ import {
     Info,
     TrendingUp,
     Sliders,
-    Camera,
-    Maximize2,
     Wallet,
     TrendingDown,
     ShoppingCart,
     Package,
     Users,
     Receipt,
+    ImageOff,
 } from 'lucide-react';
 import {
-    BarChart,
-    Bar,
     ResponsiveContainer,
     XAxis,
     YAxis,
@@ -47,6 +44,10 @@ function formatSaleDate(dateStr: string): string {
     if (diffDays === 0) return 'Hoje';
     if (diffDays === 1) return 'Ontem';
     return date.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' });
+}
+
+function formatBRL(value: number): string {
+    return value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
 }
 
 function GridLoading() {
@@ -111,7 +112,7 @@ export function TransactionDashboard({ onNavigate }: TransactionDashboardProps) 
                             </svg>
                             <span className="font-bold text-text-primary text-sm">
                                 {stats?.collectionValueBRL
-                                    ? stats.collectionValueBRL.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
+                                    ? formatBRL(stats.collectionValueBRL)
                                     : '—'}
                             </span>
                         </div>
@@ -203,25 +204,25 @@ export function TransactionDashboard({ onNavigate }: TransactionDashboardProps) 
                     <div className="grid grid-cols-6 gap-3 mb-4 shrink-0">
                         <FinancialCard
                             label="Patrimonio em Estoque"
-                            value={stats.collectionValueBRL.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
+                            value={formatBRL(stats.collectionValueBRL)}
                             icon={Package}
                             color="bg-sky-500/15 text-sky-400"
                         />
                         <FinancialCard
                             label="Receita Total"
-                            value={saleStats.total_revenue.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
+                            value={formatBRL(saleStats.total_revenue)}
                             icon={Wallet}
                             color="bg-emerald-500/15 text-emerald-400"
                         />
                         <FinancialCard
                             label="Lucro Total"
-                            value={saleStats.total_profit.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
+                            value={formatBRL(saleStats.total_profit)}
                             icon={saleStats.total_profit >= 0 ? TrendingUp : TrendingDown}
                             color={saleStats.total_profit >= 0 ? 'bg-emerald-500/15 text-emerald-400' : 'bg-red-500/15 text-red-400'}
                         />
                         <FinancialCard
                             label="Desconto Total"
-                            value={saleStats.total_discount.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
+                            value={formatBRL(saleStats.total_discount)}
                             icon={TrendingDown}
                             color="bg-yellow-500/15 text-yellow-400"
                         />
@@ -258,7 +259,7 @@ export function TransactionDashboard({ onNavigate }: TransactionDashboardProps) 
                                 <div className="flex items-center gap-2 mb-4 flex-wrap">
                                     {stats.collectionValueBRL > 0 ? (
                                         <span className="text-xs font-bold text-emerald-400 bg-emerald-500/10 px-1.5 py-0.5 rounded">
-                                            {stats.collectionValueBRL.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })} valor total
+                                            {formatBRL(stats.collectionValueBRL)} valor total
                                         </span>
                                     ) : (
                                         <span className="text-xs font-bold text-text-muted bg-bg-base px-1.5 py-0.5 rounded">
@@ -301,7 +302,7 @@ export function TransactionDashboard({ onNavigate }: TransactionDashboardProps) 
                                 ) : (
                                     <div className="mt-auto flex flex-col items-center justify-center gap-2 text-center py-2">
                                         <p className="text-xs text-text-muted">Sua colecao esta vazia.</p>
-                                                        <Button
+                                        <Button
                                             variant="outline"
                                             className="rounded-lg border-border-subtle text-xs h-7 bg-bg-base text-text-secondary hover:text-text-primary gap-1"
                                             onClick={() => onNavigate?.('search')}
@@ -312,93 +313,138 @@ export function TransactionDashboard({ onNavigate }: TransactionDashboardProps) 
                                 )}
                             </div>
 
-                            {/* Catalogo de Cartas */}
+                            {/* Evolucao do Patrimonio */}
                             <div className="col-span-8 row-span-1 bg-bg-card border border-border-subtle rounded-2xl p-5 flex flex-col">
                                 <div className="flex items-center justify-between mb-1">
                                     <div className="flex items-center gap-1.5">
-                                        <h3 className="text-sm font-semibold text-text-secondary">Catalogo de Cartas</h3>
+                                        <h3 className="text-sm font-semibold text-text-secondary">Evolucao do Patrimonio</h3>
                                         <Info size={12} className="text-text-muted" />
-                                    </div>
-                                    <div className="flex items-center gap-1">
-                                        <button className="w-7 h-7 rounded-lg bg-brand-500/20 text-brand-400 flex items-center justify-center">
-                                            <TrendingUp size={14} />
-                                        </button>
-                                        <button className="w-7 h-7 rounded-lg bg-bg-base text-text-muted flex items-center justify-center hover:text-text-primary">
-                                            <Sliders size={14} />
-                                        </button>
-                                        <button className="w-7 h-7 rounded-lg bg-bg-base text-text-muted flex items-center justify-center hover:text-text-primary">
-                                            <Camera size={14} />
-                                        </button>
-                                        <button className="w-7 h-7 rounded-lg bg-bg-base text-text-muted flex items-center justify-center hover:text-text-primary">
-                                            <Maximize2 size={14} />
-                                        </button>
                                     </div>
                                 </div>
                                 <div className="text-3xl font-bold text-text-primary mb-1">
-                                    {stats.totalCardsInCatalog.toLocaleString()}
-                                    <span className="text-text-muted text-lg ml-1">cartas</span>
+                                    {formatBRL(stats.collectionValueBRL)}
                                 </div>
                                 <div className="flex items-center gap-2 mb-3">
-                                    <span className="text-xs font-bold text-green-400 bg-green-400/10 px-1.5 py-0.5 rounded">
+                                    <span className="text-xs font-bold text-emerald-400 bg-emerald-500/10 px-1.5 py-0.5 rounded">
                                         <TrendingUp size={10} className="inline mr-0.5" />
-                                        {stats.totalSets} colecoes
+                                        {stats.collectionCount} cartas
                                     </span>
-                                    <span className="text-xs text-text-muted">em todos os lancamentos de Magic: The Gathering</span>
-                                    <Button
-                                        variant="outline"
-                                        className="rounded-lg border-border-subtle text-xs h-6 bg-bg-base text-text-secondary hover:text-text-primary gap-1 ml-auto"
-                                        onClick={() => onNavigate?.('search')}
-                                    >
-                                        Explorar Agora
-                                    </Button>
+                                    <span className="text-xs text-text-muted">valor acumulado de aquisicao</span>
                                 </div>
 
-                                <div className="flex-1 min-h-0">
-                                    <ResponsiveContainer width="100%" height="100%">
-                                        <AreaChart data={stats.setsByYear}>
-                                            <defs>
-                                                <linearGradient id="cardsGrad" x1="0" y1="0" x2="0" y2="1">
-                                                    <stop offset="0%" stopColor="var(--color-brand-500)" stopOpacity={0.3} />
-                                                    <stop offset="100%" stopColor="var(--color-brand-500)" stopOpacity={0} />
-                                                </linearGradient>
-                                            </defs>
-                                            <CartesianGrid strokeDasharray="3 3" stroke="var(--color-border-subtle)" opacity={0.3} />
-                                            <XAxis dataKey="year" tick={{ fill: 'var(--color-text-muted)', fontSize: 11 }} axisLine={false} tickLine={false} />
-                                            <YAxis tick={{ fill: 'var(--color-text-muted)', fontSize: 11 }} axisLine={false} tickLine={false} tickFormatter={(v: number) => `${Math.round(v / 1000)}K`} />
-                                            <Tooltip contentStyle={{ background: '#1a1a2e', border: '1px solid #2a2a3e', borderRadius: '8px', fontSize: '12px' }} />
-                                            <Area type="monotone" dataKey="cards" name="Cartas" stroke="var(--color-brand-500)" fill="url(#cardsGrad)" strokeWidth={2} />
-                                        </AreaChart>
-                                    </ResponsiveContainer>
-                                </div>
+                                {stats.patrimonioData.length > 1 ? (
+                                    <div className="flex-1 min-h-0">
+                                        <ResponsiveContainer width="100%" height="100%">
+                                            <AreaChart data={stats.patrimonioData}>
+                                                <defs>
+                                                    <linearGradient id="patrimonioGrad" x1="0" y1="0" x2="0" y2="1">
+                                                        <stop offset="0%" stopColor="var(--color-brand-500)" stopOpacity={0.3} />
+                                                        <stop offset="100%" stopColor="var(--color-brand-500)" stopOpacity={0} />
+                                                    </linearGradient>
+                                                </defs>
+                                                <CartesianGrid strokeDasharray="3 3" stroke="var(--color-border-subtle)" opacity={0.3} />
+                                                <XAxis dataKey="month" tick={{ fill: 'var(--color-text-muted)', fontSize: 11 }} axisLine={false} tickLine={false} />
+                                                <YAxis tick={{ fill: 'var(--color-text-muted)', fontSize: 11 }} axisLine={false} tickLine={false} tickFormatter={(v: number) => `R$${Math.round(v / 1000)}k`} />
+                                                <Tooltip
+                                                    contentStyle={{ background: '#1a1a2e', border: '1px solid #2a2a3e', borderRadius: '8px', fontSize: '12px' }}
+                                                    formatter={(value: number) => [formatBRL(value), 'Patrimonio']}
+                                                />
+                                                <Area type="monotone" dataKey="valor" name="Patrimonio" stroke="var(--color-brand-500)" fill="url(#patrimonioGrad)" strokeWidth={2} />
+                                            </AreaChart>
+                                        </ResponsiveContainer>
+                                    </div>
+                                ) : (
+                                    <div className="flex-1 flex flex-col items-center justify-center gap-2 text-center">
+                                        <p className="text-xs text-text-muted">
+                                            {stats.patrimonioData.length === 0
+                                                ? 'Adicione cartas ao estoque para ver a evolucao do patrimonio.'
+                                                : 'Adicione cartas de periodos diferentes para ver a evolucao ao longo do tempo.'}
+                                        </p>
+                                        {stats.patrimonioData.length === 0 && (
+                                            <Button
+                                                variant="outline"
+                                                className="rounded-lg border-border-subtle text-xs h-7 bg-bg-base text-text-secondary hover:text-text-primary gap-1"
+                                                onClick={() => onNavigate?.('search')}
+                                            >
+                                                <Plus size={12} /> Adicionar carta
+                                            </Button>
+                                        )}
+                                    </div>
+                                )}
                             </div>
 
-                            {/* Expansoes Recentes */}
+                            {/* Top Cartas do Estoque */}
                             <div className="col-span-7 row-span-1 bg-bg-card border border-border-subtle rounded-2xl p-5 flex flex-col">
-                                <div className="flex items-center justify-between mb-1">
+                                <div className="flex items-center justify-between mb-3">
                                     <div className="flex items-center gap-1.5">
-                                        <h3 className="text-sm font-semibold text-text-secondary">Expansoes Recentes</h3>
+                                        <h3 className="text-sm font-semibold text-text-secondary">Top Cartas do Estoque</h3>
                                         <Info size={12} className="text-text-muted" />
                                     </div>
-                                    <button className="w-7 h-7 rounded-lg bg-bg-base text-text-muted flex items-center justify-center hover:text-text-primary">
-                                        <Maximize2 size={14} />
-                                    </button>
-                                </div>
-                                <div className="text-2xl font-bold text-text-primary mb-1">
-                                    {stats.latestExpansionName}
-                                </div>
-                                <div className="flex items-center gap-2 mb-3">
-                                    <span className="text-xs text-text-muted">Expansao fisica mais recente</span>
+                                    {stats.topCards.length > 0 && (
+                                        <span className="text-xs text-text-muted bg-bg-base px-2 py-0.5 rounded-full border border-border-subtle">
+                                            por valor total
+                                        </span>
+                                    )}
                                 </div>
 
-                                <div className="flex-1 min-h-0">
-                                    <ResponsiveContainer width="100%" height="100%">
-                                        <BarChart data={stats.recentExpansionChartData} barGap={1}>
-                                            <XAxis dataKey="name" tick={{ fill: 'var(--color-text-muted)', fontSize: 10 }} axisLine={false} tickLine={false} />
-                                            <Tooltip contentStyle={{ background: '#1a1a2e', border: '1px solid #2a2a3e', borderRadius: '8px', fontSize: '12px' }} />
-                                            <Bar dataKey="cards" name="Cartas" fill="var(--color-brand-500)" radius={[2, 2, 0, 0]} barSize={24} />
-                                        </BarChart>
-                                    </ResponsiveContainer>
-                                </div>
+                                {stats.topCards.length === 0 ? (
+                                    <div className="flex-1 flex flex-col items-center justify-center gap-2 text-center">
+                                        <div className="w-10 h-10 rounded-xl bg-bg-base border border-border-subtle flex items-center justify-center">
+                                            <Package size={20} className="text-text-muted" />
+                                        </div>
+                                        <p className="text-xs text-text-muted">Nenhuma carta no estoque ainda.</p>
+                                    </div>
+                                ) : (
+                                    <div className="flex-1 flex flex-col gap-1.5 overflow-auto min-h-0">
+                                        {stats.topCards.map((card, index) => (
+                                            <div
+                                                key={card.id}
+                                                className="flex items-center gap-3 py-1.5 border-b border-border-subtle/40 last:border-0"
+                                            >
+                                                <span className="text-[10px] font-bold text-text-muted w-4 shrink-0 text-center">
+                                                    #{index + 1}
+                                                </span>
+                                                <div className="w-8 h-11 rounded overflow-hidden shrink-0 bg-bg-base border border-border-subtle/50">
+                                                    {card.image_url ? (
+                                                        <img
+                                                            src={card.image_url}
+                                                            alt={card.card_name}
+                                                            className="w-full h-full object-cover"
+                                                            onError={(e) => {
+                                                                (e.currentTarget as HTMLImageElement).style.display = 'none';
+                                                                (e.currentTarget.nextElementSibling as HTMLElement | null)?.removeAttribute('hidden');
+                                                            }}
+                                                        />
+                                                    ) : null}
+                                                    <div hidden className="w-full h-full flex items-center justify-center">
+                                                        <ImageOff size={12} className="text-text-muted" />
+                                                    </div>
+                                                </div>
+                                                <div className="flex-1 min-w-0">
+                                                    <p className="text-xs font-medium text-text-primary truncate">
+                                                        {card.card_name}
+                                                    </p>
+                                                    <p className="text-[10px] text-text-muted truncate">
+                                                        {card.set_name}
+                                                        {card.is_foil && (
+                                                            <span className="ml-1 text-yellow-400">foil</span>
+                                                        )}
+                                                    </p>
+                                                </div>
+                                                <div className="text-right shrink-0">
+                                                    <p className="text-xs font-bold text-text-primary">
+                                                        {formatBRL(card.purchase_price * card.quantity)}
+                                                    </p>
+                                                    {card.quantity > 1 && (
+                                                        <p className="text-[10px] text-text-muted">
+                                                            {card.quantity}x {formatBRL(card.purchase_price)}
+                                                        </p>
+                                                    )}
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                )}
                             </div>
 
                             {/* Vendas Recentes */}
@@ -444,7 +490,7 @@ export function TransactionDashboard({ onNavigate }: TransactionDashboardProps) 
                                                     </span>
                                                     <div className="text-right shrink-0">
                                                         <p className="text-xs font-bold text-text-primary">
-                                                            {sale.total_amount.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
+                                                            {formatBRL(sale.total_amount)}
                                                         </p>
                                                         <p className="text-[10px] text-text-muted">{formatSaleDate(sale.created_at)}</p>
                                                     </div>

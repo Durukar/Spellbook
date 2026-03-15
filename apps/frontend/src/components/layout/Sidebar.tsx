@@ -1,17 +1,13 @@
 import {
     LayoutDashboard,
-    BarChart3,
-    BookOpen,
-    Wallet,
-    Settings,
-    HelpCircle,
     Moon,
     Sun,
-    ChevronDown,
     Search,
     Users,
     ShoppingCart,
     ArrowLeftRight,
+    Package,
+    Layers,
 } from 'lucide-react';
 import {
     Sidebar,
@@ -24,17 +20,9 @@ import {
     SidebarMenu,
     SidebarMenuItem,
     SidebarMenuButton,
-    SidebarMenuSub,
-    SidebarMenuSubItem,
-    SidebarMenuSubButton,
     SidebarSeparator,
     SidebarTrigger,
 } from '@/components/ui/sidebar';
-import {
-    Collapsible,
-    CollapsibleContent,
-    CollapsibleTrigger,
-} from '@/components/ui/collapsible';
 import { useTheme } from '@/components/theme-provider';
 
 export type AppView = 'dashboard' | 'search' | 'allCards' | 'collectionBySet' | 'buyers' | 'sales' | 'trade';
@@ -68,7 +56,7 @@ export function AppSidebar({ currentView = 'dashboard', onNavigate }: AppSidebar
 
             <SidebarContent>
                 <SidebarGroup>
-                    <SidebarGroupLabel>Navegacao</SidebarGroupLabel>
+                    <SidebarGroupLabel>Geral</SidebarGroupLabel>
                     <SidebarGroupContent>
                         <SidebarMenu className="gap-0.5">
                             <SidebarMenuItem>
@@ -81,7 +69,6 @@ export function AppSidebar({ currentView = 'dashboard', onNavigate }: AppSidebar
                                     <span>Dashboard</span>
                                 </SidebarMenuButton>
                             </SidebarMenuItem>
-
                             <SidebarMenuItem>
                                 <SidebarMenuButton
                                     isActive={currentView === 'search'}
@@ -92,101 +79,34 @@ export function AppSidebar({ currentView = 'dashboard', onNavigate }: AppSidebar
                                     <span>Buscar Cartas</span>
                                 </SidebarMenuButton>
                             </SidebarMenuItem>
+                        </SidebarMenu>
+                    </SidebarGroupContent>
+                </SidebarGroup>
 
+                <SidebarSeparator />
+
+                <SidebarGroup>
+                    <SidebarGroupLabel>Estoque</SidebarGroupLabel>
+                    <SidebarGroupContent>
+                        <SidebarMenu className="gap-0.5">
                             <SidebarMenuItem>
-                                <SidebarMenuButton tooltip="Transacoes">
-                                    <BarChart3 />
-                                    <span>Transacoes</span>
+                                <SidebarMenuButton
+                                    isActive={currentView === 'allCards'}
+                                    tooltip="Todas as Cartas"
+                                    onClick={() => onNavigate?.('allCards')}
+                                >
+                                    <Package />
+                                    <span>Todas as Cartas</span>
                                 </SidebarMenuButton>
                             </SidebarMenuItem>
-
-                            <Collapsible defaultOpen className="group/collapsible">
-                                <SidebarMenuItem>
-                                    <CollapsibleTrigger render={<SidebarMenuButton tooltip="Colecao" />}>
-                                        <BookOpen />
-                                        <span>Colecao</span>
-                                        <ChevronDown className="ml-auto transition-transform group-data-[state=open]/collapsible:rotate-180" />
-                                    </CollapsibleTrigger>
-                                    <CollapsibleContent>
-                                        <SidebarMenuSub>
-                                            <SidebarMenuSubItem>
-                                                <SidebarMenuSubButton
-                                                    isActive={currentView === 'allCards'}
-                                                    onClick={() => onNavigate?.('allCards')}
-                                                >
-                                                    <span>Todas as Cartas</span>
-                                                </SidebarMenuSubButton>
-                                            </SidebarMenuSubItem>
-                                            <SidebarMenuSubItem>
-                                                <SidebarMenuSubButton
-                                                    isActive={currentView === 'collectionBySet'}
-                                                    onClick={() => onNavigate?.('collectionBySet')}
-                                                >
-                                                    <span>Por Colecao</span>
-                                                </SidebarMenuSubButton>
-                                            </SidebarMenuSubItem>
-                                            <SidebarMenuSubItem>
-                                                <SidebarMenuSubButton>
-                                                    <span>Lista de Desejos</span>
-                                                </SidebarMenuSubButton>
-                                            </SidebarMenuSubItem>
-                                        </SidebarMenuSub>
-                                    </CollapsibleContent>
-                                </SidebarMenuItem>
-                            </Collapsible>
-
                             <SidebarMenuItem>
-                                <SidebarMenuButton tooltip="Relatorios">
-                                    <BarChart3 />
-                                    <span>Relatorios</span>
-                                </SidebarMenuButton>
-                            </SidebarMenuItem>
-
-                            <Collapsible defaultOpen className="group/collapsible">
-                                <SidebarMenuItem>
-                                    <CollapsibleTrigger render={<SidebarMenuButton tooltip="Vendas" />}>
-                                        <Wallet />
-                                        <span>Vendas</span>
-                                        <ChevronDown className="ml-auto transition-transform group-data-[state=open]/collapsible:rotate-180" />
-                                    </CollapsibleTrigger>
-                                    <CollapsibleContent>
-                                        <SidebarMenuSub>
-                                            <SidebarMenuSubItem>
-                                                <SidebarMenuSubButton
-                                                    isActive={currentView === 'sales'}
-                                                    onClick={() => onNavigate?.('sales')}
-                                                >
-                                                    <ShoppingCart size={14} />
-                                                    <span>Registro de Vendas</span>
-                                                </SidebarMenuSubButton>
-                                            </SidebarMenuSubItem>
-                                            <SidebarMenuSubItem>
-                                                <SidebarMenuSubButton
-                                                    isActive={currentView === 'buyers'}
-                                                    onClick={() => onNavigate?.('buyers')}
-                                                >
-                                                    <Users size={14} />
-                                                    <span>Compradores</span>
-                                                </SidebarMenuSubButton>
-                                            </SidebarMenuSubItem>
-                                            <SidebarMenuSubItem>
-                                                <SidebarMenuSubButton
-                                                    isActive={currentView === 'trade'}
-                                                    onClick={() => onNavigate?.('trade')}
-                                                >
-                                                    <ArrowLeftRight size={14} />
-                                                    <span>Trade Analyzer</span>
-                                                </SidebarMenuSubButton>
-                                            </SidebarMenuSubItem>
-                                        </SidebarMenuSub>
-                                    </CollapsibleContent>
-                                </SidebarMenuItem>
-                            </Collapsible>
-
-                            <SidebarMenuItem>
-                                <SidebarMenuButton tooltip="Comunidade">
-                                    <BookOpen />
-                                    <span>Comunidade</span>
+                                <SidebarMenuButton
+                                    isActive={currentView === 'collectionBySet'}
+                                    tooltip="Por Colecao"
+                                    onClick={() => onNavigate?.('collectionBySet')}
+                                >
+                                    <Layers />
+                                    <span>Por Colecao</span>
                                 </SidebarMenuButton>
                             </SidebarMenuItem>
                         </SidebarMenu>
@@ -196,42 +116,46 @@ export function AppSidebar({ currentView = 'dashboard', onNavigate }: AppSidebar
                 <SidebarSeparator />
 
                 <SidebarGroup>
-                    <SidebarGroupLabel>Suporte</SidebarGroupLabel>
+                    <SidebarGroupLabel>Comercial</SidebarGroupLabel>
                     <SidebarGroupContent>
-                        <SidebarMenu>
+                        <SidebarMenu className="gap-0.5">
                             <SidebarMenuItem>
-                                <SidebarMenuButton tooltip="Configuracoes">
-                                    <Settings />
-                                    <span>Configuracoes</span>
+                                <SidebarMenuButton
+                                    isActive={currentView === 'sales'}
+                                    tooltip="Registro de Vendas"
+                                    onClick={() => onNavigate?.('sales')}
+                                >
+                                    <ShoppingCart />
+                                    <span>Registro de Vendas</span>
                                 </SidebarMenuButton>
                             </SidebarMenuItem>
                             <SidebarMenuItem>
-                                <SidebarMenuButton tooltip="Ajuda e FAQ">
-                                    <HelpCircle />
-                                    <span>Ajuda e FAQ</span>
+                                <SidebarMenuButton
+                                    isActive={currentView === 'buyers'}
+                                    tooltip="Compradores"
+                                    onClick={() => onNavigate?.('buyers')}
+                                >
+                                    <Users />
+                                    <span>Compradores</span>
+                                </SidebarMenuButton>
+                            </SidebarMenuItem>
+                            <SidebarMenuItem>
+                                <SidebarMenuButton
+                                    isActive={currentView === 'trade'}
+                                    tooltip="Trade Analyzer"
+                                    onClick={() => onNavigate?.('trade')}
+                                >
+                                    <ArrowLeftRight />
+                                    <span>Trade Analyzer</span>
                                 </SidebarMenuButton>
                             </SidebarMenuItem>
                         </SidebarMenu>
                     </SidebarGroupContent>
                 </SidebarGroup>
+
             </SidebarContent>
 
             <SidebarFooter>
-                <div className="p-4 rounded-2xl bg-gradient-to-b from-sidebar-primary/20 to-transparent border border-sidebar-primary/20 flex items-center gap-3 relative overflow-hidden group/upgrade group-data-[collapsible=icon]:hidden">
-                    <div className="absolute inset-0 bg-sidebar-primary/10 blur-xl group-hover/upgrade:bg-sidebar-primary/20 transition-colors"></div>
-                    <div className="relative z-10 w-10 h-10 rounded-full bg-sidebar-accent flex items-center justify-center shrink-0 border border-sidebar-border">
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-sidebar-primary">
-                            <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
-                            <polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline>
-                            <line x1="12" y1="22.08" x2="12" y2="12"></line>
-                        </svg>
-                    </div>
-                    <div className="relative z-10 text-left">
-                        <h4 className="font-bold text-sidebar-foreground text-sm">Premium</h4>
-                        <p className="text-xs text-sidebar-foreground/60 mt-0.5">Desbloquear todos os recursos</p>
-                    </div>
-                </div>
-
                 <SidebarMenu>
                     <SidebarMenuItem>
                         <SidebarMenuButton
